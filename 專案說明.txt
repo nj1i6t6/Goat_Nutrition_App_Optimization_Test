@@ -1,0 +1,151 @@
+專案高層次概念架構
+
+使用者 (User): 透過瀏覽器與前端應用互動。
+前端應用 (Vue.js App): 運行在使用者瀏覽器中的「店面」。它負責所有的使用者介面、互動邏輯和狀態管理。
+後端 API (Flask App): 運行在您伺服器上的「大腦和倉庫」。它負責處理業務邏輯、與資料庫溝通、呼叫外部 AI 服務。
+資料庫 (PostgreSQL): 負責永久儲存所有數據。
+
+[ 使用者 ] <--> [ 瀏覽器 ] <--> [ ngrok 公開網址 ]
+                                      |
+                                      |
+                                      V
+[ 您的電腦 / 伺-服器 ]
++------------------------------------------------------+
+|                                                      |
+|  [ Flask 後端 (Waitress 在 5001 埠運行) ]            |
+|    |                                                 |
+|    |--- 提供 API (例如 /api/sheep) --> [ 業務邏輯 ] --+--> [ PostgreSQL 資料庫 ]
+|    |                                                 |    ^
+|    '--- 提供前端靜態檔案 (index.html, .js, .css)      |    |
+|        (來自 /frontend/dist/ 資料夾)                 |    |
+|                                                      |----+
+|                                                      |
++------------------------------------------------------+
+
+2. 技術棧 (Technology Stack)
+後端 (Backend):
+語言: Python 3
+框架: Flask
+資料庫 ORM: Flask-SQLAlchemy
+資料庫遷移: Flask-Migrate (Alembic)
+使用者認證: Flask-Login
+生產伺服器: Waitress
+前端 (Frontend):
+框架: Vue.js 3 (使用 Composition API)
+建構工具: Vite
+狀態管理: Pinia
+路由: Vue Router
+API 通訊: Axios
+UI 元件庫: Element Plus
+圖表: Chart.js
+資料庫 (Database):
+PostgreSQL
+公開部署工具:
+ngrok
+
+3. 專案完整檔案路徑結構
+C:\...\goat_nutrition_app_final_version_test\
+│
+├── backend/  <-- 所有後端程式碼
+│   ├── .venv/
+│   ├── app/
+│   │   ├── api/  <-- 所有 API 藍圖
+│   │   │   ├── agent.py
+│   │   │   ├── auth.py
+│   │   │   ├── dashboard.py
+│   │   │   ├── data_management.py
+│   │   │   └── sheep.py
+│   │   ├── __init__.py  <-- 應用程式工廠
+│   │   ├── models.py
+│   │   └── utils.py
+│   ├── migrations/  <-- 資料庫遷移腳本
+│   │   ├── versions/
+│   │   └── ...
+│   ├── .env  <-- 環境變數
+│   ├── alembic.ini
+│   ├── requirements.txt
+│   └── run.py  <-- 啟動腳本
+│
+└── frontend/  <-- 所有前端程式碼
+    ├── dist/  <-- 前端打包後的生產檔案 (Flask 從這裡讀取)
+    ├── node_modules/
+    ├── public/
+    ├── src/
+    │   ├── api/  <-- Axios API 客戶端
+    │   ├── assets/  <-- 樣式與圖片
+    │   ├── components/  <-- 可重用元件 (表格、篩選器、模態窗...)
+    │   ├── router/  <-- Vue Router 設定
+    │   ├── stores/  <-- Pinia 狀態管理 (auth, sheep, chat...)
+    │   ├── utils/  <-- 通用輔助函數
+    │   └── views/  <-- 頁面級別元件 (Dashboard, SheepList...)
+    ├── .gitignore
+    ├── index.html  <-- 前端主入口 HTML
+    ├── package.json
+    └── vite.config.js
+
+4. 專案視覺化架構圖
+graph TD
+    subgraph "使用者端 (Browser)"
+        User[👤 使用者] --> Browser[🌐 瀏覽器]
+    end
+
+    subgraph "前端應用 (Vue.js 在瀏覽器中運行)"
+        Browser -- 載入 --> AppVue[App.vue]
+        AppVue -- 包含 --> RouterView[Router View]
+        RouterView -- 顯示 --> Views[頁面元件 e.g., SheepListView.vue]
+        Views -- 使用 --> Components[可重用元件 e.g., SheepTable.vue]
+        Components -- 觸發 --> Stores[Pinia 狀態管理 e.g., sheep.js]
+        Stores -- 呼叫 --> Axios[Axios API 客戶端]
+    end
+
+    subgraph "後端伺服器 (Waitress + Flask)"
+        Axios -- HTTP 請求 --> Waitress[Waitress 生產伺服器]
+        Waitress -- 傳遞請求 --> FlaskApp[Flask App (__init__.py)]
+        FlaskApp -- 路由至 --> Blueprints[API 藍圖 e.g., sheep.py]
+        Blueprints -- 處理邏輯/呼叫 --> Utils[utils.py / Gemini AI]
+        Blueprints -- 操作數據 --> SQLAlchemy[SQLAlchemy (models.py)]
+    end
+
+    subgraph "資料庫"
+        SQLAlchemy -- 讀寫 --> PostgreSQL[PostgreSQL Database]
+    end
+    
+    direction LR
+    User --> Browser --> Axios --> Waitress --> SQLAlchemy --> PostgreSQL
+
+alembic==1.13.1
+blinker==1.8.2
+certifi==2024.7.4
+charset-normalizer==3.3.2
+click==8.1.7
+colorama==0.4.6
+et-xmlfile==1.1.0
+Flask==3.0.3
+Flask-Cors==4.0.1
+Flask-Login==0.6.3
+Flask-Migrate==4.0.7
+Flask-SQLAlchemy==3.1.1
+greenlet==3.0.3
+gunicorn==22.0.0
+idna==3.7
+itsdangerous==2.2.0
+Jinja2==3.1.4
+Mako==1.3.5
+Markdown==3.6
+MarkupSafe==2.1.5
+numpy==1.26.4
+openpyxl==3.1.4
+packaging==24.1
+pandas==2.2.2
+psycopg2-binary==2.9.9
+python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
+pytz==2024.1
+requests==2.32.3
+six==1.16.0
+SQLAlchemy==2.0.31
+typing_extensions==4.12.2
+tzdata==2024.1
+urllib3==2.2.2
+waitress==3.0.0
+Werkzeug==3.0.3
