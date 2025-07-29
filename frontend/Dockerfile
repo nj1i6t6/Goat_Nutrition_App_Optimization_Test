@@ -6,7 +6,7 @@ WORKDIR /app
 
 # 複製 package 文件並安裝依賴
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install
 
 # 複製源代碼並建構
 COPY . .
