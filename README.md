@@ -2,9 +2,16 @@
 
 > 🐐 基於 AI 技術的專業山羊營養分析與飼養管理平台
 
+[![GitHub](https://img.shields.io/badge/GitHub-nj1i6t6/Goat_Nutrition_App_Optimization_Test-blue?style=flat-square&logo=github)](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test)
+[![Flask](https://img.shields.io/badge/Flask-3.0.3-green?style=flat-square&logo=flask)](https://flask.palletsprojects.com/)
+[![Vue.js](https://img.shields.io/badge/Vue.js-3.5.17-4FC08D?style=flat-square&logo=vue.js)](https://vuejs.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=flat-square&logo=postgresql)](https://www.postgresql.org/)
+[![Tests](https://img.shields.io/badge/Backend_Tests-64/64_✅-success?style=flat-square)](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test)
+[![Tests](https://img.shields.io/badge/Frontend_Tests-79/79_✅-success?style=flat-square)](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test)
+
 ## 📋 系統概述
 
-領頭羊博士是一套全面的山羊營養管理系統，整合了 Google Gemini AI 技術，為牧場主提供個性化的山羊營養建議、健康管理和生產優化方案。系統支援山羊基礎資料管理、營養需求分析、健康監控、生產記錄追蹤等功能。
+領頭羊博士是一套全面的山羊營養管理系統，整合了 Google Gemini AI 技術，為牧場主提供個性化的山羊營養建議、健康管理和生產優化方案。系統採用現代化的前後端分離架構，具有完整的測試覆蓋率和 Docker 容器化部署。
 
 ## ✨ 主要功能
 
@@ -29,24 +36,33 @@
 ## 🏗️ 技術架構
 
 ### 後端技術棧
-- **框架**：Flask 3.0.3 + SQLAlchemy ORM
-- **資料庫**：PostgreSQL 13+
-- **API 驗證**：Pydantic 數據驗證
-- **AI 整合**：Google Gemini API
-- **部署**：Waitress WSGI 伺服器
+- **核心框架**：Flask 3.0.3 + SQLAlchemy 2.0.31
+- **資料庫**：PostgreSQL 15+ (生產) / SQLite (開發)
+- **資料驗證**：Pydantic 2.7.1
+- **資料庫遷移**：Alembic 1.13.1
+- **AI 整合**：Google Generative AI 0.8.5
+- **身份驗證**：Flask-Login 0.6.3
+- **測試框架**：pytest 8.2.0 + pytest-cov 5.0.0
+- **WSGI 伺服器**：Waitress 3.0.0
+- **Excel 處理**：openpyxl 3.1.4 + pandas 2.2.2
 
 ### 前端技術棧
-- **框架**：Vue.js 3 + Composition API
-- **狀態管理**：Pinia
-- **UI 組件庫**：Element Plus
-- **打包工具**：Vite 5
-- **測試框架**：Vitest
+- **核心框架**：Vue.js 3.5.17 + Composition API
+- **狀態管理**：Pinia 3.0.3
+- **路由管理**：Vue Router 4.5.1
+- **UI 組件庫**：Element Plus 2.10.4
+- **HTTP 客戶端**：Axios 1.11.0
+- **圖表視覺化**：Chart.js 4.5.0 + Vue-ChartJS 5.3.2
+- **建置工具**：Vite 7.0.4
+- **測試框架**：Vitest 1.6.0 + @vue/test-utils 2.4.0
+- **測試環境**：Happy-DOM 12.10.3
 
-### 基礎設施
+### 基礎設施與部署
 - **容器化**：Docker + Docker Compose
-- **資料庫遷移**：Alembic
-- **API 文檔**：自動化 API 文檔生成
-- **日誌系統**：結構化日誌記錄
+- **反向代理**：Nginx (前端服務)
+- **資料庫**：PostgreSQL 15-alpine
+- **健康檢查**：內建容器健康監控
+- **網路架構**：Docker Bridge 網路
 
 ## 🚀 快速部署
 
@@ -77,12 +93,12 @@ chmod +x deploy-codespaces.sh
 1. **環境準備**
 ```bash
 # 克隆項目
-git clone <repository-url>
+git clone https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test.git
 cd Goat_Nutrition_App_Optimization_Test
 
-# 創建環境變數檔案
+# 創建環境變數檔案（從範本複製）
 cp .env.example .env
-# 編輯 .env 檔案，設定資料庫密碼、API Key 等
+# 編輯 .env 檔案，設定資料庫密碼、Gemini API Key 等
 ```
 
 2. **啟動服務**
@@ -90,13 +106,21 @@ cp .env.example .env
 # 建置並啟動所有服務
 docker-compose up -d
 
+# 等待資料庫啟動完成
+docker-compose logs -f db
+
 # 執行資料庫遷移
 docker-compose exec backend flask db upgrade
+
+# 檢查所有服務狀態
+docker-compose ps
 ```
 
 3. **訪問應用程式**
-- 前端應用程式：http://localhost
-- API 端點：http://localhost/api
+- **前端應用程式**：http://localhost (Port 80)
+- **後端 API**：http://localhost/api
+- **直接後端服務**：http://localhost:5001 (開發用)
+- **資料庫**：localhost:5432 (外部連接)
 
 ### 方法三：開發模式部署
 
@@ -104,21 +128,29 @@ docker-compose exec backend flask db upgrade
 ```bash
 cd backend
 
-# 創建虛擬環境
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# 創建並激活虛擬環境
+python -m venv .venv
+# Windows
+.\.venv\Scripts\Activate.ps1
+# Linux/macOS
+source .venv/bin/activate
 
-# 安裝依賴
+# 安裝所有依賴
 pip install -r requirements.txt
 
 # 設定環境變數
+# Windows PowerShell
+$env:FLASK_APP = "run.py"
+$env:DATABASE_URL = "sqlite:///instance/app.db"  # 或 PostgreSQL
+
+# Linux/macOS
 export FLASK_APP=run.py
-export DATABASE_URL=postgresql://user:password@localhost/goat_db
+export DATABASE_URL=sqlite:///instance/app.db
 
 # 執行資料庫遷移
 flask db upgrade
 
-# 啟動開發伺服器
+# 啟動開發伺服器 (預設: http://localhost:5001)
 python run.py
 ```
 
@@ -126,74 +158,132 @@ python run.py
 ```bash
 cd frontend
 
-# 安裝依賴
+# 安裝 Node.js 依賴
 npm install
 
-# 啟動開發伺服器
+# 啟動開發伺服器 (預設: http://localhost:5173)
 npm run dev
+
+# 或執行生產建置
+npm run build
 ```
 
-## 🧪 測試
+## 🧪 測試覆蓋率
 
 ### 後端測試 ✅ (64/64 通過)
 ```bash
 cd backend
 
+# 激活虛擬環境
+.\.venv\Scripts\Activate.ps1  # Windows
+# source .venv/bin/activate   # Linux/macOS
+
 # 執行所有測試
 pytest
 
 # 執行測試並生成覆蓋率報告
-pytest --cov=app --cov-report=html
+pytest --cov=app --cov-report=html --cov-report=term
 
-# 查看覆蓋率報告
-open htmlcov/index.html
-
-# 測試結果摘要
-# ✅ test_agent_api.py: 18 項測試 (AI 代理人功能)
-# ✅ test_auth_api.py: 10 項測試 (身份驗證功能)  
-# ✅ test_dashboard_api.py: 11 項測試 (儀表板功能)
-# ✅ test_data_management_api.py: 12 項測試 (數據管理功能)
-# ✅ test_sheep_api.py: 13 項測試 (山羊管理功能)
+# 查看 HTML 覆蓋率報告
+# Windows: start test_coverage_report/index.html
+# Linux/macOS: open htmlcov/index.html
 ```
 
-### 前端測試
+**測試覆蓋詳情**：
+- ✅ **test_auth_api.py**: 10 項測試 (身份驗證功能)
+- ✅ **test_sheep_api.py**: 13 項測試 (山羊管理功能)  
+- ✅ **test_agent_api.py**: 18 項測試 (AI 代理人功能)
+- ✅ **test_dashboard_api.py**: 11 項測試 (儀表板功能)
+- ✅ **test_data_management_api.py**: 12 項測試 (數據管理功能)
+
+### 前端測試 ✅ (79/79 通過)
 ```bash
 cd frontend
 
-# 執行單元測試
+# 執行所有測試
 npm run test
 
-# 執行測試並監控檔案變化
-npm run test:watch
-
-# 生成測試覆蓋率報告
+# 執行測試並生成覆蓋率報告
 npm run test:coverage
+
+# 執行測試 UI 介面
+npm run test:ui
 ```
+
+**測試覆蓋詳情**：
+- ✅ **SheepFilter.test.js**: 13 項測試 (山羊篩選組件)
+- ✅ **SheepFilter.simple.test.js**: 9 項測試 (簡化篩選測試)
+- ✅ **auth.test.js**: 2 項測試 (身份驗證 Store)
+- ✅ **sheep.test.js**: 16 項測試 (山羊管理 Store)
+- ✅ **consultation.test.js**: 16 項測試 (諮詢功能 Store)
+- ✅ **settings.test.js**: 23 項測試 (設定管理 Store)
+
+### 測試配置檔案
+- **後端**: `pytest.ini`, `conftest.py`
+- **前端**: `vitest.config.js`, `src/test/setup.js`
 
 ## 🐳 Docker 配置
 
 ### 服務組成
-- **backend**：Flask 應用程式服務
-- **frontend**：Nginx 提供的前端靜態檔案服務
-- **db**：PostgreSQL 資料庫服務
+```yaml
+services:
+  # PostgreSQL 15 資料庫服務
+  db:
+    image: postgres:15-alpine
+    ports: ["5432:5432"]
+    healthcheck: pg_isready 檢查
+    
+  # Flask 後端服務  
+  backend:
+    build: ./backend
+    ports: ["5001:5001"]
+    depends_on: db (health check)
+    
+  # Nginx 前端服務
+  frontend:
+    build: ./frontend  
+    ports: ["80:80"]
+    depends_on: backend
+```
 
 ### Docker Compose 指令
 ```bash
-# 啟動所有服務
+# 啟動所有服務 (後台模式)
 docker-compose up -d
 
-# 查看服務狀態
+# 查看所有服務狀態
 docker-compose ps
 
-# 查看日誌
-docker-compose logs -f [service-name]
+# 查看特定服務日誌
+docker-compose logs -f backend
+docker-compose logs -f frontend  
+docker-compose logs -f db
 
-# 停止服務
+# 查看所有服務即時日誌
+docker-compose logs -f
+
+# 停止所有服務
 docker-compose down
 
-# 重建映像檔
+# 停止並移除資料卷
+docker-compose down -v
+
+# 重建所有映像檔 (無快取)
 docker-compose build --no-cache
+
+# 重啟特定服務
+docker-compose restart backend
+
+# 進入容器內部 (偵錯用)
+docker-compose exec backend bash
+docker-compose exec db psql -U goat_user -d goat_nutrition_db
 ```
+
+### 容器健康檢查
+所有服務都配置了健康檢查機制：
+- **資料庫**: `pg_isready` 檢查 PostgreSQL 可用性
+- **後端**: HTTP 健康檢查 `/api/auth/status`  
+- **前端**: HTTP 根路徑檢查 `/`
 
 ## 📚 API 文檔
 
@@ -221,34 +311,73 @@ docker-compose build --no-cache
 - `GET /api/dashboard/data` - 獲取儀表板數據
 - `GET /api/dashboard/farm_report` - 獲取牧場報告
 
-### API 驗證
-所有 API 請求都經過 Pydantic 模型驗證，確保數據完整性和類型安全。
+#### 數據管理
+- `GET /api/data/export` - 匯出 Excel 資料
+- `POST /api/data/import` - 匯入 Excel 資料
+- `GET /api/data/template` - 下載匯入範本
+- `GET /api/data/statistics` - 獲取數據統計
+
+### API 資料驗證
+所有 API 請求都經過 **Pydantic 2.7.1** 模型驗證，確保：
+- 資料類型安全與自動轉換
+- 完整性檢查與錯誤回饋  
+- 自動化 API 文檔生成
+- 請求/回應模式驗證
+
+### API 身份驗證
+- 使用 **Flask-Login** 進行 session 管理
+- 支援用戶註冊、登入、登出
+- 自動化身份驗證檢查中間件
+- 角色權限控制機制
 
 ## 🔧 環境變數配置
 
-創建 `.env` 檔案並設定以下變數：
+系統使用 `.env` 檔案進行環境配置。請從 `.env.example` 複製並修改：
+
+```bash
+# 複製環境變數範本
+cp .env.example .env
+```
+
+### 主要環境變數說明
 
 ```env
-# 資料庫配置
+# === 資料庫配置 ===
 DATABASE_URL=postgresql://goat_user:goat_password@db:5432/goat_nutrition_db
 POSTGRES_DB=goat_nutrition_db
-POSTGRES_USER=goat_user
+POSTGRES_USER=goat_user  
 POSTGRES_PASSWORD=goat_password
 
-# Flask 配置
-SECRET_KEY=your-secret-key-change-in-production
+# === Flask 應用配置 ===
+SECRET_KEY=your-very-secret-key-change-in-production
 FLASK_ENV=production
 FLASK_DEBUG=False
 
-# CORS 配置
+# === CORS 跨域配置 ===
 CORS_ORIGINS=http://localhost,http://127.0.0.1
 
-# Google Gemini API
+# === AI 服務配置 ===
 GOOGLE_API_KEY=your-gemini-api-key
 
-# 日誌配置
+# === 日誌與監控 ===
 LOG_LEVEL=INFO
+LOG_FILE=/app/logs/app.log
+
+# === 效能調校 ===
+WAITRESS_THREADS=6
+WAITRESS_CONNECTION_LIMIT=1000
 ```
+
+### Docker Compose 特定變數
+以下變數會自動被 `docker-compose.yml` 使用：
+- `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`
+- `SECRET_KEY`, `FLASK_ENV`, `FLASK_DEBUG`
+- `CORS_ORIGINS`, `GOOGLE_API_KEY`
+
+⚠️ **安全提醒**：
+- 生產環境務必更改所有預設密碼
+- 不要將 `.env` 檔案提交到版本控制系統
+- 建議使用密碼管理工具生成強密碼
 
 ## 👥 預設帳號
 
@@ -260,64 +389,164 @@ LOG_LEVEL=INFO
 
 ## 🔍 故障排除
 
-### 常見問題
+### 常見問題與解決方案
 
-1. **資料庫連線失敗**
-   - 檢查 PostgreSQL 服務是否正常運行
-   - 確認 `DATABASE_URL` 環境變數設定正確
-   - 查看資料庫容器日誌：`docker-compose logs db`
-
-2. **API 請求失敗**
-   - 確認 Google Gemini API Key 設定正確
-   - 檢查網路連線是否正常
-   - 查看後端服務日誌：`docker-compose logs backend`
-
-3. **前端頁面無法載入**
-   - 確認前端容器是否正常啟動
-   - 檢查 Nginx 配置是否正確
-   - 查看前端服務日誌：`docker-compose logs frontend`
-
-### 日誌查看
+#### 1. **Docker 容器啟動失敗**
 ```bash
-# 查看所有服務日誌
-docker-compose logs
+# 檢查所有服務狀態
+docker-compose ps
 
-# 查看特定服務日誌
+# 查看詳細錯誤日誌
 docker-compose logs backend
-docker-compose logs frontend
 docker-compose logs db
+docker-compose logs frontend
 
-# 即時查看日誌
-docker-compose logs -f
+# 重新啟動問題服務
+docker-compose restart backend
+```
+
+#### 2. **資料庫連線問題**
+```bash
+# 檢查資料庫服務健康狀態
+docker-compose exec db pg_isready -U goat_user
+
+# 直接連接資料庫測試
+docker-compose exec db psql -U goat_user -d goat_nutrition_db
+
+# 檢查資料庫環境變數
+docker-compose exec backend env | grep DATABASE
+```
+
+#### 3. **API 請求失敗**
+- 確認 `GOOGLE_API_KEY` 已正確設定在 `.env` 檔案中
+- 檢查 Gemini API 金鑰是否有效且有足夠配額
+- 查看後端日誌：`docker-compose logs -f backend`
+- 測試 API 端點：`curl http://localhost/api/auth/status`
+
+#### 4. **前端頁面載入問題**
+```bash
+# 檢查 Nginx 容器狀態
+docker-compose logs frontend
+
+# 檢查前端建置是否成功
+docker-compose exec frontend ls -la /usr/share/nginx/html
+
+# 重新建置前端映像
+docker-compose build --no-cache frontend
+```
+
+#### 5. **測試執行失敗**
+```bash
+# 後端測試問題
+cd backend
+.\.venv\Scripts\Activate.ps1  # Windows
+pip install -r requirements.txt
+pytest -v
+
+# 前端測試問題  
+cd frontend
+npm install
+npm run test
+```
+
+### 健康檢查狀態說明
+- **healthy**: 服務正常運行
+- **unhealthy**: 服務異常，需檢查日誌
+- **starting**: 服務正在啟動中，請等待
+
+### 效能監控
+```bash
+# 查看容器資源使用情況
+docker stats
+
+# 查看系統資源
+docker system df
+
+# 清理無用的映像和容器
+docker system prune -f
 ```
 
 ## 🤝 開發貢獻
 
 ### 開發環境設定
-1. Fork 此專案
-2. 創建功能分支：`git checkout -b feature/amazing-feature`
-3. 提交變更：`git commit -m 'Add amazing feature'`
-4. 推送分支：`git push origin feature/amazing-feature`
-5. 提交 Pull Request
+1. **Fork 此專案**：https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test
+2. **創建功能分支**：`git checkout -b feature/amazing-feature`
+3. **提交變更**：`git commit -m 'Add amazing feature'`
+4. **推送分支**：`git push origin feature/amazing-feature`  
+5. **提交 Pull Request**
 
-### 代碼規範
-- 後端遵循 PEP 8 Python 代碼規範
-- 前端使用 ESLint 和 Prettier 進行代碼格式化
-- 所有新功能需要包含相應的單元測試
-- API 變更需要更新相應的文檔
+### 開發工作流程
+```bash
+# 1. 克隆並設定開發環境
+git clone https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test.git
+cd Goat_Nutrition_App_Optimization_Test
+
+# 2. 設定後端開發環境
+cd backend
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1  # Windows
+pip install -r requirements.txt
+
+# 3. 設定前端開發環境  
+cd ../frontend
+npm install
+
+# 4. 執行測試確保環境正常
+cd ../backend && pytest
+cd ../frontend && npm run test
+```
+
+### 代碼品質標準
+- **後端**：遵循 PEP 8 Python 代碼規範
+- **前端**：使用 ESLint 和 Prettier 進行代碼格式化
+- **測試覆蓋率**：新功能必須包含相應的單元測試
+- **API 設計**：使用 Pydantic 進行資料驗證
+- **文檔更新**：API 變更需要更新相應的 README
+
+### 提交規範
+```
+feat: 新增功能
+fix: 修復 bug  
+docs: 文檔更新
+style: 代碼格式調整
+refactor: 代碼重構
+test: 測試相關
+chore: 建置與工具相關
+```
+
+### 測試要求
+- 後端：所有新的 API 端點都需要對應的 pytest 測試
+- 前端：新的組件和 Store 需要對應的 Vitest 測試
+- 測試覆蓋率不能低於現有水準 (後端 64/64，前端 79/79)
 
 ## 📄 授權條款
 
 本專案採用 MIT 授權條款，詳見 [LICENSE](LICENSE) 檔案。
 
-## 📞 技術支持
+## 📞 技術支持與聯繫
 
-如遇到技術問題或需要功能建議，歡迎通過以下方式聯繫：
+### 專案資源
+- 🏠 **專案首頁**：[GitHub Repository](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test)
+- 🐛 **問題回報**：[GitHub Issues](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test/issues)
+- 📖 **專案 Wiki**：[系統架構說明](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test/wiki)
+- 🔄 **更新日誌**：[Releases](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test/releases)
 
-- 📧 Email：support@goat-nutrition.com
-- 🐛 Issues：[GitHub Issues](https://github.com/your-repo/issues)
-- 📖 Wiki：[項目 Wiki](https://github.com/your-repo/wiki)
+### 快速問題解決
+1. **查看 [故障排除](#-故障排除) 章節**
+2. **檢查 [GitHub Issues](https://github.com/nj1i6t6/Goat_Nutrition_App_Optimization_Test/issues) 中的類似問題**
+3. **查看容器日誌**：`docker-compose logs -f`
+4. **提交新的 Issue**（請包含完整的錯誤信息和環境詳情）
+
+### 開發社群
+歡迎加入領頭羊博士開發社群，一起為山羊營養管理技術發展貢獻力量！
 
 ---
+
+## 📊 專案統計
+
+![GitHub stars](https://img.shields.io/github/stars/nj1i6t6/Goat_Nutrition_App_Optimization_Test?style=social)
+![GitHub forks](https://img.shields.io/github/forks/nj1i6t6/Goat_Nutrition_App_Optimization_Test?style=social)
+![GitHub issues](https://img.shields.io/github/issues/nj1i6t6/Goat_Nutrition_App_Optimization_Test)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/nj1i6t6/Goat_Nutrition_App_Optimization_Test)
 
 **🐐 領頭羊博士 - 讓每一隻山羊都能獲得最佳的營養管理！**
