@@ -1,12 +1,12 @@
 # === 階段一：建構階段 ===
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # 設定工作目錄
 WORKDIR /app
 
 # 複製 package 文件並安裝依賴
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # 複製源代碼並建構
 COPY . .
