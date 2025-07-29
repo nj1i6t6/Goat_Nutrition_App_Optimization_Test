@@ -39,29 +39,46 @@ def test_app_functionality():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     
     with app.app_context():
-        # 初始化資料庫
+        # 確保資料庫表結構乾淨
+        db.drop_all()
         db.create_all()
         print("✅ 資料庫初始化成功")
         
-        # 創建測試用戶
-        user = User(username='testuser')
-        user.set_password('testpass')
-        db.session.add(user)
-        db.session.commit()
-        print("✅ 測試用戶創建成功")
+        # 創建測試用戶 (在記憶體資料庫中，應該不會有重複問題)
+        try:
+            user = User(username='testuser')
+            user.set_password('testpass')
+            db.session.add(user)
+            db.session.commit()
+            print("✅ 測試用戶創建成功")
+        except Exception as e:
+            # 如果出現錯誤，回滾並查找現有用戶
+            db.session.rollback()
+            user = User.query.filter_by(username='testuser').first()
+            if not user:
+                raise e  # 如果真的沒有用戶，重新拋出錯誤
+            print("✅ 使用現有測試用戶")
         
-        # 創建測試羊隻
-        sheep = Sheep(
-            user_id=user.id,
-            EarNum='TEST001',
-            Breed='波爾羊',
-            Sex='母',
-            Body_Weight_kg=45.5,
-            FarmNum='F001'
-        )
-        db.session.add(sheep)
-        db.session.commit()
-        print("✅ 測試羊隻創建成功")
+        # 創建測試羊隻 (添加錯誤處理避免重複)
+        try:
+            sheep = Sheep(
+                user_id=user.id,
+                EarNum='TEST001',
+                Breed='波爾羊',
+                Sex='母',
+                Body_Weight_kg=45.5,
+                FarmNum='F001'
+            )
+            db.session.add(sheep)
+            db.session.commit()
+            print("✅ 測試羊隻創建成功")
+        except Exception as e:
+            # 如果羊隻已存在，使用現有的
+            db.session.rollback()
+            sheep = Sheep.query.filter_by(user_id=user.id, EarNum='TEST001').first()
+            if not sheep:
+                raise e  # 如果真的沒有羊隻，重新拋出錯誤
+            print("✅ 使用現有測試羊隻")
         
         # 測試查詢
         sheep_count = Sheep.query.filter_by(user_id=user.id).count()
