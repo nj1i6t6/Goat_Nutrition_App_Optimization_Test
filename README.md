@@ -65,6 +65,13 @@ chmod +x deploy.sh
 ./deploy.sh
 ```
 
+#### GitHub Codespaces 用戶
+```bash
+# 專用於 Codespaces 環境的部署腳本（已修復 Node.js 版本問題）
+chmod +x deploy-codespaces.sh
+./deploy-codespaces.sh
+```
+
 ### 方法二：手動 Docker 部署
 
 1. **環境準備**
