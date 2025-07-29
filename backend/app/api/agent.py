@@ -44,7 +44,7 @@ def get_recommendation():
         return jsonify(create_error_response("請求資料驗證失敗", e.errors())), 400
 
     # 將 Pydantic 模型轉換為字典
-    data = recommendation_data.dict(exclude_unset=True)
+    data = recommendation_data.model_dump(exclude_unset=True)
     api_key = data.pop('api_key')
     
     ear_num = data.get('EarNum')

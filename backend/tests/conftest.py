@@ -109,7 +109,9 @@ def test_sheep_data():
 def test_sheep(app, test_user, test_sheep_data):
     """創建測試羊隻"""
     with app.app_context():
-        sheep = Sheep(user_id=test_user.id, **test_sheep_data)
+        # 重新獲取用戶以確保在當前會話中
+        user = User.query.filter_by(username='testuser').first()
+        sheep = Sheep(user_id=user.id, **test_sheep_data)
         db.session.add(sheep)
         db.session.commit()
         return sheep

@@ -157,7 +157,7 @@ describe('sheep Store', () => {
 
         store.addSheep(newSheep)
 
-        expect(store.sheepList).toContain(newSheep)
+        expect(store.sheepList[0]).toEqual(newSheep)
         expect(store.sheepList).toHaveLength(1)
       })
     })
@@ -184,7 +184,7 @@ describe('sheep Store', () => {
         store.updateSheep(newSheep)
 
         expect(store.sheepList).toHaveLength(2)
-        expect(store.sheepList).toContain(newSheep)
+        expect(store.sheepList[1]).toEqual(newSheep)
       })
     })
 

@@ -15,7 +15,7 @@ def export_excel():
     """將用戶所有數據匯出為 Excel 檔案"""
     try:
         user_id = current_user.id
-        db_engine = db.get_engine() 
+        db_engine = db.engine 
 
         # 準備查詢
         sheep_query = Sheep.query.filter_by(user_id=user_id).order_by(Sheep.EarNum)
@@ -31,8 +31,12 @@ def export_excel():
 
         output = BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            # 確保至少有一個工作表
+            has_data = False
+            
             if not df_sheep.empty:
                 df_sheep.to_excel(writer, sheet_name='Sheep_Basic_Info', index=False)
+                has_data = True
             
             if not df_events.empty:
                 # 建立羊隻 ID 到耳號的映射
@@ -41,6 +45,7 @@ def export_excel():
                 # 重新排列欄位，將 EarNum 放在最前面
                 cols = ['EarNum'] + [col for col in df_events.columns if col not in ['EarNum', 'sheep_id']]
                 df_events[cols].to_excel(writer, sheet_name='Sheep_Events_Log', index=False)
+                has_data = True
 
             if not df_history.empty:
                 if 'sheep_map' not in locals():
@@ -48,9 +53,16 @@ def export_excel():
                 df_history['EarNum'] = df_history['sheep_id'].map(sheep_map)
                 cols = ['EarNum'] + [col for col in df_history.columns if col not in ['EarNum', 'sheep_id']]
                 df_history[cols].to_excel(writer, sheet_name='Sheep_Historical_Data', index=False)
+                has_data = True
             
             if not df_chat.empty:
                 df_chat.to_excel(writer, sheet_name='Chat_History', index=False)
+                has_data = True
+            
+            # 如果沒有任何數據，創建一個空的工作表
+            if not has_data:
+                empty_df = pd.DataFrame({'說明': ['目前沒有數據可匯出']})
+                empty_df.to_excel(writer, sheet_name='Empty_Export', index=False)
 
         output.seek(0)
         

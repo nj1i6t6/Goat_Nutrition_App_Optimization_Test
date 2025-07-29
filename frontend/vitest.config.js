@@ -13,11 +13,13 @@ export default defineConfig(({ command }) => {
     test: {
       globals: true,
       environment: 'happy-dom',
+      setupFiles: ['./src/test/setup.js'],
       coverage: {
         reporter: ['text', 'json', 'html'],
         exclude: [
           'node_modules/',
           'src/main.js',
+          'src/test/',
           '**/*.spec.js',
           '**/*.test.js',
         ],

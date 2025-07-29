@@ -38,7 +38,7 @@ def add_sheep():
 
     try:
         # 將 Pydantic 模型轉換為字典，排除未設置的值
-        sheep_dict = sheep_data.dict(exclude_unset=True)
+        sheep_dict = sheep_data.model_dump(exclude_unset=True)
         new_sheep = Sheep(user_id=current_user.id, **sheep_dict)
         db.session.add(new_sheep)
         db.session.commit()
@@ -69,7 +69,9 @@ def get_sheep_details(ear_num):
 @login_required
 def update_sheep(ear_num):
     """更新羊隻資料"""
-    sheep = Sheep.query.filter_by(user_id=current_user.id, EarNum=ear_num).first_or_404()
+    sheep = Sheep.query.filter_by(user_id=current_user.id, EarNum=ear_num).first()
+    if not sheep:
+        return jsonify(error="找不到該耳號的羊隻或您沒有權限"), 404
     
     try:
         # 使用 Pydantic 驗證資料
@@ -85,7 +87,7 @@ def update_sheep(ear_num):
     
     try:
         # 只處理在 Pydantic 模型中定義且有值的欄位
-        update_dict = update_data.dict(exclude_unset=True)
+        update_dict = update_data.model_dump(exclude_unset=True)
         
         for key, value in update_dict.items():
             # 確保欄位存在於資料庫模型中
@@ -129,7 +131,9 @@ def update_sheep(ear_num):
 @login_required
 def delete_sheep(ear_num):
     """刪除羊隻"""
-    sheep = Sheep.query.filter_by(user_id=current_user.id, EarNum=ear_num).first_or_404()
+    sheep = Sheep.query.filter_by(user_id=current_user.id, EarNum=ear_num).first()
+    if not sheep:
+        return jsonify(error="找不到該耳號的羊隻或您沒有權限"), 404
     try:
         db.session.delete(sheep)
         db.session.commit()
@@ -161,7 +165,7 @@ def add_sheep_event(ear_num):
         return jsonify(create_error_response("事件資料驗證失敗", e.errors())), 400
     
     try:
-        event_dict = event_data.dict(exclude_unset=True)
+        event_dict = event_data.model_dump(exclude_unset=True)
         new_event = SheepEvent(
             user_id=current_user.id, 
             sheep_id=sheep.id, 

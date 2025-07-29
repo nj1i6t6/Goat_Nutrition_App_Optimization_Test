@@ -97,9 +97,10 @@ class TestAgentAPI:
     def test_get_recommendation_with_sheep_context(self, authenticated_client, 
                                                  test_sheep, mock_gemini_api):
         """測試包含羊隻背景資料的建議"""
+        # 使用已知的 EarNum 而不是訪問對象屬性
         recommendation_data = {
             'api_key': 'test-api-key',
-            'EarNum': test_sheep.EarNum,  # 使用現有羊隻的耳號
+            'EarNum': 'TEST001',  # 使用固定的耳號
             'Body_Weight_kg': 50.0
         }
         
@@ -147,7 +148,7 @@ class TestAgentAPI:
             'api_key': 'test-api-key',
             'message': '這隻羊隻的健康狀況如何？',
             'session_id': 'test-session-002',
-            'ear_num_context': test_sheep.EarNum
+            'ear_num_context': 'TEST001'  # 使用固定的耳號
         }
         
         response = authenticated_client.post('/api/agent/chat', json=chat_data)
@@ -168,15 +169,20 @@ class TestAgentAPI:
         response = authenticated_client.post('/api/agent/chat', json=chat_data)
         assert response.status_code == 200
         
+        # 重新獲取用戶ID以避免會話問題
+        from app.models import User
+        user = User.query.filter_by(username='testuser').first()
+        user_id = user.id
+        
         # 檢查資料庫中的聊天記錄
         user_message = ChatHistory.query.filter_by(
-            user_id=test_user.id,
+            user_id=user_id,
             session_id='test-session-003',
             role='user'
         ).first()
         
         model_message = ChatHistory.query.filter_by(
-            user_id=test_user.id,
+            user_id=user_id,
             session_id='test-session-003',
             role='model'
         ).first()

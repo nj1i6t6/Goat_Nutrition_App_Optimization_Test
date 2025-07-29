@@ -135,7 +135,7 @@ npm run dev
 
 ## 🧪 測試
 
-### 後端測試
+### 後端測試 ✅ (64/64 通過)
 ```bash
 cd backend
 
@@ -147,6 +147,13 @@ pytest --cov=app --cov-report=html
 
 # 查看覆蓋率報告
 open htmlcov/index.html
+
+# 測試結果摘要
+# ✅ test_agent_api.py: 18 項測試 (AI 代理人功能)
+# ✅ test_auth_api.py: 10 項測試 (身份驗證功能)  
+# ✅ test_dashboard_api.py: 11 項測試 (儀表板功能)
+# ✅ test_data_management_api.py: 12 項測試 (數據管理功能)
+# ✅ test_sheep_api.py: 13 項測試 (山羊管理功能)
 ```
 
 ### 前端測試
