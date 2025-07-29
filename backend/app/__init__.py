@@ -39,8 +39,15 @@ def create_app():
     db_host = os.environ.get('DB_HOST')
     db_port = os.environ.get('DB_PORT')
     db_name = os.environ.get('DB_NAME')
-    db_uri = f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    
+    # 檢查是否有資料庫配置，如果沒有則使用默認的 SQLite
+    if all([db_user, db_pass, db_host, db_port, db_name]):
+        db_uri = f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'
+        app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+    elif not app.config.get('SQLALCHEMY_DATABASE_URI'):
+        # 如果沒有設定任何資料庫 URI，使用默認的 SQLite
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+    
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # --- 初始化擴展 ---

@@ -13,8 +13,17 @@ from werkzeug.security import generate_password_hash
 @pytest.fixture
 def app():
     """創建測試應用實例"""
+    # 設置測試環境變數
+    os.environ['SECRET_KEY'] = 'test-secret-key'
+    os.environ['CORS_ORIGINS'] = '*'
+    # 清除資料庫相關環境變數，確保使用 SQLite
+    for key in ['DB_USERNAME', 'DB_PASSWORD', 'DB_HOST', 'DB_PORT', 'DB_NAME']:
+        if key in os.environ:
+            del os.environ[key]
+    
     # 創建臨時資料庫文件
-    db_fd, db_path = tempfile.mkstemp()
+    db_fd, db_path = tempfile.mkstemp(suffix='.db')
+    os.close(db_fd)  # 立即關閉，讓 SQLite 可以使用
     
     # 設置測試配置
     app = create_app()
@@ -29,9 +38,14 @@ def app():
         db.create_all()
         yield app
         
-    # 清理
-    os.close(db_fd)
-    os.unlink(db_path)
+        # 清理臨時文件
+        db.drop_all()
+    
+    # 刪除臨時文件
+    try:
+        os.unlink(db_path)
+    except OSError:
+        pass  # 文件可能已經被刪除
 
 
 @pytest.fixture
@@ -50,6 +64,12 @@ def runner(app):
 def test_user(app):
     """創建測試用戶"""
     with app.app_context():
+        # 清理現有用戶（如果存在）
+        existing_user = User.query.filter_by(username='testuser').first()
+        if existing_user:
+            db.session.delete(existing_user)
+            db.session.commit()
+        
         user = User(
             username='testuser',
             password_hash=generate_password_hash('testpass')
@@ -136,12 +156,14 @@ def multiple_test_sheep(app, test_user):
 @pytest.fixture
 def mock_gemini_api(monkeypatch):
     """模擬 Gemini API 調用"""
-    def mock_call_gemini_api(prompt, api_key, generation_config_override=None):
+    def mock_call_gemini_api(prompt, api_key, generation_config_override=None, safety_settings_override=None):
         return {
             "text": "這是模擬的 AI 回應內容。根據您提供的羊隻資料，建議每日飼料需求如下：\n\n- DMI: 1.2-1.5 kg/day\n- ME: 8.5-9.5 MJ/day\n- CP: 120-140 g/day"
         }
     
+    # 嘗試多個可能的路徑
     monkeypatch.setattr('app.utils.call_gemini_api', mock_call_gemini_api)
+    monkeypatch.setattr('app.api.agent.call_gemini_api', mock_call_gemini_api)
     return mock_call_gemini_api
 
 

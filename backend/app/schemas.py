@@ -3,7 +3,7 @@ Pydantic 資料驗證模型
 用於 API 請求和響應的資料驗證與序列化
 """
 
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, field_validator, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
@@ -35,7 +35,8 @@ class SheepCreateModel(BaseModel):
     status: Optional[str] = Field(None, max_length=100, description="生理狀態")
     FarmNum: Optional[str] = Field(None, max_length=100, description="牧場編號")
 
-    @validator('EarNum')
+    @field_validator('EarNum')
+    @classmethod
     def validate_ear_num(cls, v):
         if not v or not v.strip():
             raise ValueError('耳號不能為空')
