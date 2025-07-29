@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
 
 // 導入 AppLayout 和 LoginView，因為它們是核心佈局
 import AppLayout from '../views/AppLayout.vue'
@@ -60,6 +59,8 @@ const router = createRouter({
 
 // 全域導航守衛
 router.beforeEach(async (to, from, next) => {
+  // 使用動態導入避免循環依賴
+  const { useAuthStore } = await import('../stores/auth')
   const authStore = useAuthStore()
 
   if (!authStore.isAuthenticated && localStorage.getItem('user')) {

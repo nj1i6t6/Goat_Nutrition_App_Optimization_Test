@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useAuthStore } from '../stores/auth';
 import { handleApiError } from '../utils/errorHandler';
 
 const apiClient = axios.create({
@@ -30,12 +29,14 @@ apiClient.interceptors.response.use(
     }
     return response.data;
   },
-  (error) => {
-    const authStore = useAuthStore();
+  async (error) => {
     if (error.response) {
       switch (error.response.status) {
         case 401:
           console.error("收到 401 未授權錯誤，執行登出。");
+          // 使用動態導入避免循環依賴
+          const { useAuthStore } = await import('../stores/auth');
+          const authStore = useAuthStore();
           authStore.logout();
           break;
         case 404:

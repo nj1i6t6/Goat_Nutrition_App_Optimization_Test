@@ -76,6 +76,11 @@ def test_user(app):
         )
         db.session.add(user)
         db.session.commit()
+        
+        # 刷新對象以避免 DetachedInstanceError
+        db.session.refresh(user)
+        # 將對象從會話中分離，但保留其狀態
+        db.session.expunge(user)
         return user
 
 
@@ -114,6 +119,11 @@ def test_sheep(app, test_user, test_sheep_data):
         sheep = Sheep(user_id=user.id, **test_sheep_data)
         db.session.add(sheep)
         db.session.commit()
+        
+        # 刷新對象以避免 DetachedInstanceError
+        db.session.refresh(sheep)
+        # 將對象從會話中分離，但保留其狀態
+        db.session.expunge(sheep)
         return sheep
 
 
@@ -145,13 +155,21 @@ def multiple_test_sheep(app, test_user):
             }
         ]
         
+        # 重新獲取用戶以確保在當前會話中
+        user = User.query.filter_by(username='testuser').first()
         sheep_list = []
         for data in sheep_data:
-            sheep = Sheep(user_id=test_user.id, **data)
+            sheep = Sheep(user_id=user.id, **data)
             db.session.add(sheep)
             sheep_list.append(sheep)
         
         db.session.commit()
+        
+        # 刷新並分離所有對象
+        for sheep in sheep_list:
+            db.session.refresh(sheep)
+            db.session.expunge(sheep)
+        
         return sheep_list
 
 
@@ -177,3 +195,16 @@ def mock_gemini_api_error(monkeypatch):
     
     monkeypatch.setattr('app.utils.call_gemini_api', mock_call_gemini_api_error)
     return mock_call_gemini_api_error
+
+
+@pytest.fixture
+def db_session(app):
+    """提供資料庫會話的fixture"""
+    with app.app_context():
+        return db.session
+
+
+@pytest.fixture
+def mock_post(mocker):
+    """模擬requests.post方法"""
+    return mocker.patch('requests.post')

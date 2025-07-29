@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import router from '../router'
 import api from '../api'
 
 // 使用 defineStore 來定義一個 store
@@ -26,7 +25,8 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = response.user;
         // 將用戶資訊存儲到 localStorage，以便刷新頁面後保持登入狀態
         localStorage.setItem('user', JSON.stringify(response.user));
-        // 登入成功後跳轉到儀表板頁面
+        // 登入成功後跳轉到儀表板頁面 - 使用動態導入避免循環依賴
+        const { default: router } = await import('../router')
         await router.push({ name: 'Dashboard' });
       }
       return response;
@@ -43,6 +43,8 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.success) {
         user.value = response.user;
         localStorage.setItem('user', JSON.stringify(response.user));
+        // 使用動態導入避免循環依賴
+        const { default: router } = await import('../router')
         await router.push({ name: 'Dashboard' });
       }
       return response;
@@ -62,8 +64,9 @@ export const useAuthStore = defineStore('auth', () => {
       // 清空狀態和 localStorage
       user.value = null;
       localStorage.removeItem('user');
-      // 跳轉到登入頁面
+      // 跳轉到登入頁面 - 使用動態導入避免循環依賴
       // 使用 replace 防止用戶透過瀏覽器返回鍵回到需要登入的頁面
+      const { default: router } = await import('../router')
       await router.replace({ name: 'Login' });
     }
   }
