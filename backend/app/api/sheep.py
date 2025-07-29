@@ -1,6 +1,11 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app.models import db, Sheep, SheepEvent, SheepHistoricalData
+from app.schemas import (
+    SheepCreateModel, SheepUpdateModel, SheepEventCreateModel, 
+    HistoricalDataCreateModel, create_error_response
+)
+from pydantic import ValidationError
 from datetime import datetime, date
 
 bp = Blueprint('sheep', __name__)
@@ -21,20 +26,20 @@ def add_sheep():
     if not request.is_json:
         return jsonify(error="請求必須是 JSON 格式"), 400
     
-    data = request.get_json()
-    ear_num = data.get('EarNum')
-    if not ear_num:
-        return jsonify(error="'EarNum' 為必填欄位"), 400
-
-    if Sheep.query.filter_by(user_id=current_user.id, EarNum=ear_num).first():
-        return jsonify(error=f"耳號 {ear_num} 已存在"), 409
+    try:
+        # 使用 Pydantic 驗證資料
+        sheep_data = SheepCreateModel(**request.get_json())
+    except ValidationError as e:
+        return jsonify(create_error_response("資料驗證失敗", e.errors())), 400
     
-    data.pop('id', None)
-    data.pop('user_id', None)
-    data.pop('record_date', None)
+    # 檢查耳號是否已存在
+    if Sheep.query.filter_by(user_id=current_user.id, EarNum=sheep_data.EarNum).first():
+        return jsonify(error=f"耳號 {sheep_data.EarNum} 已存在"), 409
 
     try:
-        new_sheep = Sheep(user_id=current_user.id, **data)
+        # 將 Pydantic 模型轉換為字典，排除未設置的值
+        sheep_dict = sheep_data.dict(exclude_unset=True)
+        new_sheep = Sheep(user_id=current_user.id, **sheep_dict)
         db.session.add(new_sheep)
         db.session.commit()
         return jsonify(
@@ -65,27 +70,29 @@ def get_sheep_details(ear_num):
 def update_sheep(ear_num):
     """更新羊隻資料"""
     sheep = Sheep.query.filter_by(user_id=current_user.id, EarNum=ear_num).first_or_404()
-    data = request.get_json()
     
-    record_date = data.pop('record_date', date.today().strftime('%Y-%m-%d'))
+    try:
+        # 使用 Pydantic 驗證資料
+        update_data = SheepUpdateModel(**request.get_json())
+    except ValidationError as e:
+        return jsonify(create_error_response("資料驗證失敗", e.errors())), 400
+    
+    record_date = request.get_json().get('record_date', date.today().strftime('%Y-%m-%d'))
     if not record_date:
         record_date = date.today().strftime('%Y-%m-%d')
-
-    data.pop('id', None)
-    data.pop('user_id', None)
     
     historical_fields = ['Body_Weight_kg', 'milk_yield_kg_day', 'milk_fat_percentage']
     
-    # --- 【關鍵修正：只允許更新資料庫中實際存在的欄位】 ---
-    # 獲取 Sheep 模型所有真實的欄位名稱
-    allowed_keys = Sheep.__table__.columns.keys()
-
     try:
-        for key, value in data.items():
-            # 只處理在 allowed_keys 白名單中的欄位
-            if key in allowed_keys:
+        # 只處理在 Pydantic 模型中定義且有值的欄位
+        update_dict = update_data.dict(exclude_unset=True)
+        
+        for key, value in update_dict.items():
+            # 確保欄位存在於資料庫模型中
+            if hasattr(sheep, key):
                 new_value = value if value != '' else None
                 
+                # 處理歷史數據記錄
                 if key in historical_fields and new_value is not None:
                     old_value = getattr(sheep, key)
                     if old_value != new_value:
@@ -146,12 +153,19 @@ def get_sheep_events(ear_num):
 @login_required
 def add_sheep_event(ear_num):
     sheep = Sheep.query.filter_by(user_id=current_user.id, EarNum=ear_num).first_or_404()
-    data = request.get_json()
-    if not data.get('event_date') or not data.get('event_type'):
-        return jsonify(error="事件日期和類型為必填"), 400
+    
     try:
+        # 使用 Pydantic 驗證事件資料
+        event_data = SheepEventCreateModel(**request.get_json())
+    except ValidationError as e:
+        return jsonify(create_error_response("事件資料驗證失敗", e.errors())), 400
+    
+    try:
+        event_dict = event_data.dict(exclude_unset=True)
         new_event = SheepEvent(
-            user_id=current_user.id, sheep_id=sheep.id, **data
+            user_id=current_user.id, 
+            sheep_id=sheep.id, 
+            **event_dict
         )
         db.session.add(new_event)
         db.session.commit()

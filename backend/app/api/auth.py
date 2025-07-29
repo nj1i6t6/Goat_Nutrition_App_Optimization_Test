@@ -110,3 +110,24 @@ def auth_status():
         return jsonify(logged_in=True, user={'username': current_user.username})
     else:
         return jsonify(logged_in=False)
+
+
+@bp.route('/health', methods=['GET'])
+def health_check():
+    """健康檢查端點，用於 Docker 容器監控"""
+    try:
+        # 檢查資料庫連線
+        from app.models import User
+        User.query.limit(1).first()
+        
+        return jsonify({
+            'status': 'healthy',
+            'message': '服務運行正常',
+            'database': 'connected'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'message': '服務異常',
+            'error': str(e)
+        }), 503

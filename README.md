@@ -1,159 +1,309 @@
-# 領頭羊博士 - 智能飼養顧問 (Goat Nutrition Advisor)
+# 領頭羊博士 - 智慧山羊營養管理系統
 
-這是一個基於 Vue.js 3 和 Flask 的現代化全端應用程式，旨在為羊隻飼養提供智能化的數據管理與營養建議。專案經過了前後端分離的重構，前端採用 Vue 3 帶來了流暢的使用者體驗，後端使用 Flask 提供穩定可靠的 API 服務。
+> 🐐 基於 AI 技術的專業山羊營養分析與飼養管理平台
 
-## ✨ 核心功能
+## 📋 系統概述
 
-*   **儀表板:** 集中展示任務提醒、健康警示、羊群狀態及 ESG 指標。
-*   **羊群總覽:** 高性能的虛擬化表格，支持對羊群數據的即時篩選、排序和模糊搜尋。
-*   **羊隻管理:** 提供完整的新增、編輯、刪除 (CRUD) 功能，包含詳細的基本資料、事件日誌和歷史數據圖表。
-*   **AI 飼養建議:** 結合羊隻的詳細數據，呼叫 Google Gemini AI 模型生成包含 ESG 永續性分析的專業飼養建議。
-*   **AI 問答助理:** 提供互動式聊天介面，可針對特定羊隻的上下文進行提問。
-*   **數據管理:** 支援透過 Excel 檔案進行批次資料的匯出與導入（支援標準範本和自訂格式映射）。
-*   **系統設定:** 允許用戶自訂 API 金鑰和事件選項。
-*   **版本控制:** 整合 Git 與一鍵上傳腳本，方便管理專案版本。
+領頭羊博士是一套全面的山羊營養管理系統，整合了 Google Gemini AI 技術，為牧場主提供個性化的山羊營養建議、健康管理和生產優化方案。系統支援山羊基礎資料管理、營養需求分析、健康監控、生產記錄追蹤等功能。
 
-## 🛠️ 技術棧 (Tech Stack)
+## ✨ 主要功能
 
-| 類別 | 技術 |
-| :--- | :--- |
-| **後端** | Python, Flask, Flask-SQLAlchemy, Flask-Migrate, Waitress |
-| **前端** | Vue.js 3 (Composition API), Vite, Pinia, Vue Router, Axios |
-| **UI 元件庫** | Element Plus |
-| **資料庫** | PostgreSQL |
-| **部署工具** | ngrok |
+### 🏠 核心管理功能
+- **山羊檔案管理**：完整的山羊基本資料、血統記錄、生產履歷
+- **智慧營養分析**：基於個體差異的精準營養需求計算
+- **健康監控系統**：疫苗接種、驅蟲提醒、健康狀態追蹤
+- **生產記錄管理**：產奶量、繁殖記錄、成長數據分析
 
-## 🏗️ 專案架構
+### 🤖 AI 智慧功能
+- **個性化營養建議**：結合山羊品種、生理狀態、環境條件的營養方案
+- **智慧對話諮詢**：24/7 AI 代理人提供專業飼養建議
+- **預測性健康分析**：基於歷史數據的健康風險預警
+- **生產效能優化**：數據驅動的生產管理建議
 
-本專案採用**統一服務**的生產部署模式。Flask 後端不僅負責提供所有 `/api` 的 RESTful API 接口，還同時託管由 Vite 打包生成的靜態前端檔案（位於 `frontend/dist`）。這種架構徹底解決了生產環境中的跨域資源共享 (CORS) 問題，並極大地簡化了部署流程。
+### 📊 數據分析功能
+- **牧場綜合儀表板**：即時數據概覽和關鍵指標監控
+- **Excel 數據匯入匯出**：支援批量數據處理和報表生成
+- **歷史趨勢分析**：成長曲線、產量變化、健康趨勢追蹤
+- **ESG 永續指標**：環境友好和動物福利評估
 
-## 🚀 設定與安裝
+## 🏗️ 技術架構
 
-請按照以下步驟來設定您的本地開發環境。
+### 後端技術棧
+- **框架**：Flask 3.0.3 + SQLAlchemy ORM
+- **資料庫**：PostgreSQL 13+
+- **API 驗證**：Pydantic 數據驗證
+- **AI 整合**：Google Gemini API
+- **部署**：Waitress WSGI 伺服器
 
-### **前提條件**
-請確保您的電腦已安裝以下軟體：
-1.  **Git:** [下載地址](https://git-scm.com/downloads)
-2.  **Python 3.8+:** [下載地址](https://www.python.org/downloads/)
-3.  **Node.js 18+ (LTS):** [下載地址](https://nodejs.org/)
-4.  **PostgreSQL:** [下載地址](https://www.postgresql.org/download/) (並確保已建立專案所需的資料庫和用戶)
+### 前端技術棧
+- **框架**：Vue.js 3 + Composition API
+- **狀態管理**：Pinia
+- **UI 組件庫**：Element Plus
+- **打包工具**：Vite 5
+- **測試框架**：Vitest
 
-### **1. 取得專案**
-```bash
-git clone https://github.com/nj1i6t6/goat-nutrition-app.git
-cd goat-nutrition-app
+### 基礎設施
+- **容器化**：Docker + Docker Compose
+- **資料庫遷移**：Alembic
+- **API 文檔**：自動化 API 文檔生成
+- **日誌系統**：結構化日誌記錄
+
+## 🚀 快速部署
+
+### 方法一：使用自動化部署腳本（推薦）
+
+#### Windows 用戶
+```cmd
+# 下載項目後，直接執行部署腳本
+deploy.bat
 ```
 
-### **2. 後端設定**
-```powershell
-# 進入後端目錄
+#### Linux/macOS 用戶
+```bash
+# 賦予執行權限並執行部署腳本
+chmod +x deploy.sh
+./deploy.sh
+```
+
+### 方法二：手動 Docker 部署
+
+1. **環境準備**
+```bash
+# 克隆項目
+git clone <repository-url>
+cd Goat_Nutrition_App_Optimization_Test
+
+# 創建環境變數檔案
+cp .env.example .env
+# 編輯 .env 檔案，設定資料庫密碼、API Key 等
+```
+
+2. **啟動服務**
+```bash
+# 建置並啟動所有服務
+docker-compose up -d
+
+# 執行資料庫遷移
+docker-compose exec backend flask db upgrade
+```
+
+3. **訪問應用程式**
+- 前端應用程式：http://localhost
+- API 端點：http://localhost/api
+
+### 方法三：開發模式部署
+
+#### 後端設定
+```bash
 cd backend
 
-# 建立並啟動 Python 虛擬環境
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+# 創建虛擬環境
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
-# 安裝所有依賴套件
+# 安裝依賴
 pip install -r requirements.txt
 
-# 複製環境變數範本檔案
-# (在 Windows PowerShell 中)
-copy .env.example .env
+# 設定環境變數
+export FLASK_APP=run.py
+export DATABASE_URL=postgresql://user:password@localhost/goat_db
 
-# **重要：** 請打開 .env 檔案，並填寫您自己的資料庫連線資訊和一個隨機的 SECRET_KEY
-
-# 初始化資料庫並應用所有遷移
-# (確保您的 PostgreSQL 服務正在運行)
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass # (如果需要)
-$env:FLASK_APP = "run.py"
+# 執行資料庫遷移
 flask db upgrade
+
+# 啟動開發伺服器
+python run.py
 ```
 
-### **3. 前端設定**
-```powershell
-# 回到專案根目錄
-cd ..
-
-# 進入前端目錄
+#### 前端設定
+```bash
 cd frontend
 
-# 安裝所有 Node.js 依賴
+# 安裝依賴
 npm install
+
+# 啟動開發伺服器
+npm run dev
 ```
 
-## 🏃‍♂️ 運行應用程式
+## 🧪 測試
 
-### **開發模式 (Development Mode)**
-用於開發新功能和除錯。此模式提供自動重載和詳細的錯誤日誌。
+### 後端測試
+```bash
+cd backend
 
-1.  **啟動後端 (第一個終端機):**
-    ```powershell
-    cd backend
-    .\.venv\Scripts\Activate.ps1
-    python run.py 
-    # 後端運行在 http://localhost:5001
-    ```
+# 執行所有測試
+pytest
 
-2.  **啟動前端 (第二個終端機):**
-    ```powershell
-    cd frontend
-    npm run dev
-    # 前端開發伺服器運行在 http://localhost:5173
-    ```
+# 執行測試並生成覆蓋率報告
+pytest --cov=app --cov-report=html
 
-3.  在瀏覽器中打開 `http://localhost:5173`。
-
-### **生產模式 (Production Mode)**
-用於將專案打包、部署，或透過 ngrok 分享給他人。
-
-1.  **前端打包 (只需在修改前端後執行一次):**
-    ```powershell
-    cd frontend
-    npm run build
-    ```
-
-2.  **啟動後端統一伺服器 (一個終端機即可):**
-    ```powershell
-    cd backend
-    .\.venv\Scripts\Activate.ps1
-    waitress-serve --host=0.0.0.0 --port=5001 run:app
-    # 您的應用現在可以透過 http://localhost:5001 訪問
-    ```
-
-3.  **(可選) 使用 ngrok 公開服務:**
-    ```bash
-    ngrok http 5001
-    ```
-
-## 📁 專案結構
+# 查看覆蓋率報告
+open htmlcov/index.html
 ```
-goat-nutrition-app/
-│
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── __init__.py
-│   │   └── models.py
-│   ├── migrations/
-│   ├── .env
-│   ├── .env.example  <-- 環境變數範本
-│   ├── requirements.txt
-│   └── run.py
-│
-├── frontend/
-│   ├── dist/  <-- 生產打包輸出
-│   ├── src/
-│   │   ├── api/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   ├── router/
-│   │   ├── stores/
-│   │   ├── utils/
-│   │   └── views/
-│   ├── index.html
-│   └── package.json
-│
-├── .gitignore
-├── README.md  <-- 您正在閱讀的檔案
-└── upload_to_github.ps1  <-- 一鍵上傳腳本
+
+### 前端測試
+```bash
+cd frontend
+
+# 執行單元測試
+npm run test
+
+# 執行測試並監控檔案變化
+npm run test:watch
+
+# 生成測試覆蓋率報告
+npm run test:coverage
 ```
+
+## 🐳 Docker 配置
+
+### 服務組成
+- **backend**：Flask 應用程式服務
+- **frontend**：Nginx 提供的前端靜態檔案服務
+- **db**：PostgreSQL 資料庫服務
+
+### Docker Compose 指令
+```bash
+# 啟動所有服務
+docker-compose up -d
+
+# 查看服務狀態
+docker-compose ps
+
+# 查看日誌
+docker-compose logs -f [service-name]
+
+# 停止服務
+docker-compose down
+
+# 重建映像檔
+docker-compose build --no-cache
+```
+
+## 📚 API 文檔
+
+### 主要 API 端點
+
+#### 身份驗證
+- `POST /api/auth/login` - 用戶登入
+- `POST /api/auth/register` - 用戶註冊
+- `GET /api/auth/status` - 檢查登入狀態
+- `POST /api/auth/logout` - 用戶登出
+
+#### 山羊管理
+- `GET /api/sheep/` - 獲取所有山羊列表
+- `POST /api/sheep/` - 新增山羊記錄
+- `GET /api/sheep/{ear_num}` - 獲取特定山羊詳情
+- `PUT /api/sheep/{ear_num}` - 更新山羊資料
+- `DELETE /api/sheep/{ear_num}` - 刪除山羊記錄
+
+#### AI 代理
+- `POST /api/agent/recommendation` - 獲取營養建議
+- `POST /api/agent/chat` - AI 對話諮詢
+- `GET /api/agent/tip` - 獲取每日小貼士
+
+#### 儀表板
+- `GET /api/dashboard/data` - 獲取儀表板數據
+- `GET /api/dashboard/farm_report` - 獲取牧場報告
+
+### API 驗證
+所有 API 請求都經過 Pydantic 模型驗證，確保數據完整性和類型安全。
+
+## 🔧 環境變數配置
+
+創建 `.env` 檔案並設定以下變數：
+
+```env
+# 資料庫配置
+DATABASE_URL=postgresql://goat_user:goat_password@db:5432/goat_nutrition_db
+POSTGRES_DB=goat_nutrition_db
+POSTGRES_USER=goat_user
+POSTGRES_PASSWORD=goat_password
+
+# Flask 配置
+SECRET_KEY=your-secret-key-change-in-production
+FLASK_ENV=production
+FLASK_DEBUG=False
+
+# CORS 配置
+CORS_ORIGINS=http://localhost,http://127.0.0.1
+
+# Google Gemini API
+GOOGLE_API_KEY=your-gemini-api-key
+
+# 日誌配置
+LOG_LEVEL=INFO
+```
+
+## 👥 預設帳號
+
+系統預設建立以下管理員帳號：
+- **帳號**：admin
+- **密碼**：admin123
+
+⚠️ **安全提醒**：請在首次登入後立即修改預設密碼！
+
+## 🔍 故障排除
+
+### 常見問題
+
+1. **資料庫連線失敗**
+   - 檢查 PostgreSQL 服務是否正常運行
+   - 確認 `DATABASE_URL` 環境變數設定正確
+   - 查看資料庫容器日誌：`docker-compose logs db`
+
+2. **API 請求失敗**
+   - 確認 Google Gemini API Key 設定正確
+   - 檢查網路連線是否正常
+   - 查看後端服務日誌：`docker-compose logs backend`
+
+3. **前端頁面無法載入**
+   - 確認前端容器是否正常啟動
+   - 檢查 Nginx 配置是否正確
+   - 查看前端服務日誌：`docker-compose logs frontend`
+
+### 日誌查看
+```bash
+# 查看所有服務日誌
+docker-compose logs
+
+# 查看特定服務日誌
+docker-compose logs backend
+docker-compose logs frontend
+docker-compose logs db
+
+# 即時查看日誌
+docker-compose logs -f
+```
+
+## 🤝 開發貢獻
+
+### 開發環境設定
+1. Fork 此專案
+2. 創建功能分支：`git checkout -b feature/amazing-feature`
+3. 提交變更：`git commit -m 'Add amazing feature'`
+4. 推送分支：`git push origin feature/amazing-feature`
+5. 提交 Pull Request
+
+### 代碼規範
+- 後端遵循 PEP 8 Python 代碼規範
+- 前端使用 ESLint 和 Prettier 進行代碼格式化
+- 所有新功能需要包含相應的單元測試
+- API 變更需要更新相應的文檔
+
+## 📄 授權條款
+
+本專案採用 MIT 授權條款，詳見 [LICENSE](LICENSE) 檔案。
+
+## 📞 技術支持
+
+如遇到技術問題或需要功能建議，歡迎通過以下方式聯繫：
+
+- 📧 Email：support@goat-nutrition.com
+- 🐛 Issues：[GitHub Issues](https://github.com/your-repo/issues)
+- 📖 Wiki：[項目 Wiki](https://github.com/your-repo/wiki)
+
+---
+
+**🐐 領頭羊博士 - 讓每一隻山羊都能獲得最佳的營養管理！**

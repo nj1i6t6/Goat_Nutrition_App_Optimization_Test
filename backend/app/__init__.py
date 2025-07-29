@@ -23,8 +23,16 @@ def create_app():
 
     # --- 配置 ---
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
-    # 在這個統一服務的模式下，CORS 不再是主要問題，但保留也無妨
-    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    
+    # --- 【安全性改進：CORS 設定】 ---
+    # 根據環境變數決定允許的來源
+    cors_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
+    if cors_origins == ['*']:
+        # 開發環境：允許所有來源
+        CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
+    else:
+        # 生產環境：僅允許指定的來源
+        CORS(app, resources={r"/api/*": {"origins": cors_origins}}, supports_credentials=True)
 
     db_user = os.environ.get('DB_USERNAME')
     db_pass = os.environ.get('DB_PASSWORD')

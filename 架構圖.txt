@@ -1,0 +1,77 @@
+.
+|-- README.md
+|-- backend
+|   |-- alembic.ini
+|   |-- app
+|   |   |-- __init__.py
+|   |   |-- api
+|   |   |   |-- __init__.py
+|   |   |   |-- agent.py
+|   |   |   |-- auth.py
+|   |   |   |-- dashboard.py
+|   |   |   |-- data_management.py
+|   |   |   `-- sheep.py
+|   |   |-- models.py
+|   |   `-- utils.py
+|   |-- migrations
+|   |   |-- env.py
+|   |   |-- script.py.mako
+|   |   `-- versions
+|   |       `-- a6d3b4664bd0_add_esg_fields.py
+|   |-- requirements.txt
+|   `-- run.py
+|-- backend_dependency_graph.svg
+|-- frontend
+|   |-- README.md
+|   |-- index.html
+|   |-- package-lock.json
+|   |-- package.json
+|   |-- public
+|   |   |-- templates
+|   |   |   `-- goat_import_template.xlsx
+|   |   `-- vite.svg
+|   |-- src
+|   |   |-- App.vue
+|   |   |-- api
+|   |   |   `-- index.js
+|   |   |-- assets
+|   |   |   `-- styles
+|   |   |       `-- main.css
+|   |   |-- components
+|   |   |   |-- common
+|   |   |   |-- layout
+|   |   |   `-- sheep
+|   |   |       |-- SheepFilter.vue
+|   |   |       |-- SheepModal.vue
+|   |   |       |-- SheepTable.vue
+|   |   |       `-- tabs
+|   |   |           |-- BasicInfoTab.vue
+|   |   |           |-- EventsLogTab.vue
+|   |   |           `-- HistoryTab.vue
+|   |   |-- composites
+|   |   |-- main.js
+|   |   |-- router
+|   |   |   `-- index.js
+|   |   |-- stores
+|   |   |   |-- auth.js
+|   |   |   |-- chat.js
+|   |   |   |-- consultation.js
+|   |   |   |-- settings.js
+|   |   |   `-- sheep.js
+|   |   |-- style.css
+|   |   |-- utils
+|   |   |   `-- index.js
+|   |   `-- views
+|   |       |-- AppLayout.vue
+|   |       |-- ChatView.vue
+|   |       |-- ConsultationView.vue
+|   |       |-- DashboardView.vue
+|   |       |-- DataManagementView.vue
+|   |       |-- LoginView.vue
+|   |       |-- SettingsView.vue
+|   |       `-- SheepListView.vue
+|   `-- vite.config.js
+|-- generate_architecture.py
+|-- upload_to_github.ps1
+
+

@@ -7,16 +7,66 @@
     
     <h4>核心識別資料</h4>
     <el-row :gutter="20">
-      <el-col :span="8"><el-form-item label="耳號 (EarNum)" prop="EarNum"><el-input v-model="form.EarNum" :disabled="!isNew" /></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="牧場編號 (FarmNum)"><el-input v-model="form.FarmNum" /></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="唯一記錄編號 (RUni)"><el-input v-model="form.RUni" /></el-form-item></el-col>
+      <el-col :span="8">
+        <el-form-item prop="EarNum">
+          <template #label>
+            耳號 (EarNum)
+            <FieldHelper content="羊隻的唯一識別編號，通常為耳標號碼，新增後不可修改" />
+          </template>
+          <el-input v-model="form.EarNum" :disabled="!isNew" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            牧場編號 (FarmNum)
+            <FieldHelper content="牧場內部管理編號，用於區分不同管理區域或批次" />
+          </template>
+          <el-input v-model="form.FarmNum" />
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            唯一記錄編號 (RUni)
+            <FieldHelper content="系統內部記錄編號，用於資料庫管理和追蹤" />
+          </template>
+          <el-input v-model="form.RUni" />
+        </el-form-item>
+      </el-col>
     </el-row>
 
     <h4>基礎生理資料</h4>
     <el-row :gutter="20">
-      <el-col :span="8"><el-form-item label="性別 (Sex)"><el-select v-model="form.Sex" placeholder="選擇性別" style="width:100%"><el-option v-for="opt in sexOptions" :key="opt.value" :label="opt.label" :value="opt.value"/></el-select></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="出生日期 (BirthDate)"><el-date-picker v-model="form.BirthDate" type="date" placeholder="選擇日期" style="width:100%"/></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="出生體重 (kg)"><el-input-number v-model="form.BirWei" :precision="1" :step="0.1" style="width:100%"/></el-form-item></el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            性別 (Sex)
+            <FieldHelper content="羊隻性別：公羊、母羊，影響營養需求和管理方式" />
+          </template>
+          <el-select v-model="form.Sex" placeholder="選擇性別" style="width:100%">
+            <el-option v-for="opt in sexOptions" :key="opt.value" :label="opt.label" :value="opt.value"/>
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            出生日期 (BirthDate)
+            <FieldHelper content="羊隻出生日期，用於計算月齡和制定飼養計畫" />
+          </template>
+          <el-date-picker v-model="form.BirthDate" type="date" placeholder="選擇日期" style="width:100%"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            出生體重 (kg)
+            <FieldHelper content="羊隻出生時體重，影響早期成長評估和營養規劃" />
+          </template>
+          <el-input-number v-model="form.BirWei" :precision="1" :step="0.1" style="width:100%"/>
+        </el-form-item>
+      </el-col>
     </el-row>
 
     <h4>血統資料</h4>
@@ -31,21 +81,115 @@
 
     <h4>飼養管理資料</h4>
     <el-row :gutter="20">
-      <el-col :span="8"><el-form-item label="品種類別"><el-select v-model="form.breed_category" placeholder="選擇品種類別" style="width:100%"><el-option v-for="opt in breedCategoryOptions" :key="opt.value" :label="opt.label" :value="opt.value"/></el-select></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="體重 (公斤)"><el-input-number v-model="form.Body_Weight_kg" :precision="1" style="width:100%"/></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="月齡 (自動計算)"><el-input v-model="ageDisplay" disabled /></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="生理狀態"><el-select v-model="form.status" placeholder="選擇生理狀態" style="width:100%"><el-option v-for="opt in statusOptions" :key="opt.value" :label="opt.label" :value="opt.value"/></el-select></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="目標日增重 (克/天)"><el-input-number v-model="form.target_average_daily_gain_g" style="width:100%"/></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="活動量"><el-select v-model="form.activity_level" placeholder="選擇活動量" style="width:100%"><el-option v-for="opt in activityLevelOptions" :key="opt.value" :label="opt.label" :value="opt.value"/></el-select></el-form-item></el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            品種類別
+            <FieldHelper content="羊隻品種分類，影響營養需求計算和飼料配方" />
+          </template>
+          <el-select v-model="form.breed_category" placeholder="選擇品種類別" style="width:100%">
+            <el-option v-for="opt in breedCategoryOptions" :key="opt.value" :label="opt.label" :value="opt.value"/>
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            體重 (公斤)
+            <FieldHelper content="羊隻當前體重，更新時會記錄到歷史記錄中" />
+          </template>
+          <el-input-number v-model="form.Body_Weight_kg" :precision="1" style="width:100%"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            月齡 (自動計算)
+            <FieldHelper content="根據出生日期自動計算的月齡，用於成長階段判斷" />
+          </template>
+          <el-input v-model="ageDisplay" disabled />
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            生理狀態
+            <FieldHelper content="羊隻當前生理狀態：成長期、懷孕期、泌乳期等，影響營養需求" />
+          </template>
+          <el-select v-model="form.status" placeholder="選擇生理狀態" style="width:100%">
+            <el-option v-for="opt in statusOptions" :key="opt.value" :label="opt.label" :value="opt.value"/>
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            目標日增重 (克/天)
+            <FieldHelper content="期望的每日體重增長目標，用於評估飼養效果" />
+          </template>
+          <el-input-number v-model="form.target_average_daily_gain_g" style="width:100%"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            活動量
+            <FieldHelper content="羊隻活動程度：低活動量(舍飼)、中等活動量(半放牧)、高活動量(全放牧)" />
+          </template>
+          <el-select v-model="form.activity_level" placeholder="選擇活動量" style="width:100%">
+            <el-option v-for="opt in activityLevelOptions" :key="opt.value" :label="opt.label" :value="opt.value"/>
+          </el-select>
+        </el-form-item>
+      </el-col>
     </el-row>
     
     <h4>生產與繁殖資料</h4>
     <el-row :gutter="20">
-      <el-col :span="8" v-if="isFemale"><el-form-item label="日產奶量 (公斤/天)"><el-input-number v-model="form.milk_yield_kg_day" :precision="1" style="width:100%"/></el-form-item></el-col>
-      <el-col :span="8" v-if="isFemale"><el-form-item label="乳脂率 (%)"><el-input-number v-model="form.milk_fat_percentage" :precision="1" style="width:100%"/></el-form-item></el-col>
-      <el-col :span="8" v-if="isFemale"><el-form-item label="懷胎數"><el-input-number v-model="form.number_of_fetuses" style="width:100%"/></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="泌乳胎次 (Lactation)"><el-input-number v-model="form.Lactation" style="width:100%"/></el-form-item></el-col>
-      <el-col :span="8"><el-form-item label="產仔數/窩 (LittleSize)"><el-input-number v-model="form.LittleSize" style="width:100%"/></el-form-item></el-col>
+      <el-col :span="8" v-if="isFemale">
+        <el-form-item>
+          <template #label>
+            日產奶量 (公斤/天)
+            <FieldHelper content="母羊每日產奶量，更新時會記錄到歷史記錄中" />
+          </template>
+          <el-input-number v-model="form.milk_yield_kg_day" :precision="1" style="width:100%"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8" v-if="isFemale">
+        <el-form-item>
+          <template #label>
+            乳脂率 (%)
+            <FieldHelper content="羊奶中脂肪含量百分比，反映奶品質量" />
+          </template>
+          <el-input-number v-model="form.milk_fat_percentage" :precision="1" style="width:100%"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8" v-if="isFemale">
+        <el-form-item>
+          <template #label>
+            懷胎數
+            <FieldHelper content="懷孕期間胎兒數量，影響營養需求和管理方式" />
+          </template>
+          <el-input-number v-model="form.number_of_fetuses" style="width:100%"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            泌乳胎次 (Lactation)
+            <FieldHelper content="第幾次泌乳，影響產奶量和營養需求" />
+          </template>
+          <el-input-number v-model="form.Lactation" style="width:100%"/>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item>
+          <template #label>
+            產仔數/窩 (LittleSize)
+            <FieldHelper content="每次產仔的數量，評估繁殖性能指標" />
+          </template>
+          <el-input-number v-model="form.LittleSize" style="width:100%"/>
+        </el-form-item>
+      </el-col>
     </el-row>
 
     <h4>代理人備註與提醒日期</h4>
@@ -77,6 +221,7 @@ import { ElMessage } from 'element-plus';
 import { useSheepStore } from '../../../stores/sheep';
 import api from '../../../api';
 import { formatDateForInput, sexOptions, breedCategoryOptions, statusOptions, activityLevelOptions } from '../../../utils';
+import FieldHelper from '../../common/FieldHelper.vue';
 
 const props = defineProps({
   sheepData: Object,
@@ -139,18 +284,22 @@ const handleSubmit = async () => {
           }
         });
 
+        const errorHandler = (error) => {
+          ElMessage.error(error.message);
+        };
+
         if (isNew.value) {
-          const res = await api.addSheep(dataToSubmit);
+          const res = await api.addSheep(dataToSubmit, errorHandler);
           sheepStore.addSheep(res.sheep);
           ElMessage.success('新增成功');
         } else {
-          const res = await api.updateSheep(props.sheepData.EarNum, dataToSubmit);
+          const res = await api.updateSheep(props.sheepData.EarNum, dataToSubmit, errorHandler);
           sheepStore.updateSheep(res.sheep);
           ElMessage.success('更新成功');
         }
         emit('data-updated');
       } catch (error) {
-        ElMessage.error(`操作失敗: ${error.error || error.message}`);
+        // 錯誤已由 errorHandler 處理
       } finally {
         saving.value = false;
       }

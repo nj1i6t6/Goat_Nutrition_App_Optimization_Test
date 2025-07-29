@@ -2,6 +2,8 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
 from app.utils import call_gemini_api, get_sheep_info_for_context
 from app.models import db, ChatHistory
+from app.schemas import AgentRecommendationModel, AgentChatModel, create_error_response
+from pydantic import ValidationError
 from datetime import datetime
 import markdown
 
@@ -35,11 +37,16 @@ def get_agent_tip():
 @login_required
 def get_recommendation():
     """獲取飼養建議"""
-    data = request.get_json()
-    api_key = data.pop('api_key', None)
-    if not api_key:
-        return jsonify(error="未提供 API 金鑰"), 401
+    try:
+        # 使用 Pydantic 驗證請求資料
+        recommendation_data = AgentRecommendationModel(**request.get_json())
+    except ValidationError as e:
+        return jsonify(create_error_response("請求資料驗證失敗", e.errors())), 400
 
+    # 將 Pydantic 模型轉換為字典
+    data = recommendation_data.dict(exclude_unset=True)
+    api_key = data.pop('api_key')
+    
     ear_num = data.get('EarNum')
     sheep_context_str = ""
     if ear_num:
@@ -118,14 +125,17 @@ def get_recommendation():
 @login_required
 def chat_with_agent():
     """與 AI 聊天"""
-    data = request.get_json()
-    api_key = data.get('api_key')
-    user_message = data.get('message')
-    session_id = data.get('session_id')
-    ear_num_context = data.get('ear_num_context')
+    try:
+        # 使用 Pydantic 驗證聊天資料
+        chat_data = AgentChatModel(**request.get_json())
+    except ValidationError as e:
+        return jsonify(create_error_response("聊天資料驗證失敗", e.errors())), 400
 
-    if not all([api_key, user_message, session_id]):
-        return jsonify(error="缺少必要參數"), 400
+    # 從驗證後的資料中提取值
+    api_key = chat_data.api_key
+    user_message = chat_data.message
+    session_id = chat_data.session_id
+    ear_num_context = chat_data.ear_num_context
 
     history = ChatHistory.query.filter_by(
         user_id=current_user.id, 

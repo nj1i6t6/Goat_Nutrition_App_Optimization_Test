@@ -1,7 +1,7 @@
 # --- 自動上傳到 GitHub 的 PowerShell 腳本 ---
 
 # 提示用戶輸入本次更新的說明
-$commitMessage = 完成羊群總覽頁面 "請輸入本次更新的簡要說明 (例如: '完成羊群總覽頁面')，然後按 Enter"
+$commitMessage = Read-Host "請輸入本次更新的簡要說明 (例如: '完成羊群總覽頁面')，然後按 Enter"
 
 # 檢查用戶是否輸入了說明
 if (-not $commitMessage) {
