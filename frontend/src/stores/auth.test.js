@@ -15,6 +15,11 @@ vi.mock('../router', () => ({
   }
 }))
 
+// Mock errorHandler 避免循環依賴
+vi.mock('../utils/errorHandler', () => ({
+  handleApiError: vi.fn()
+}))
+
 vi.mock('../api', () => ({
   default: {
     register: vi.fn(),

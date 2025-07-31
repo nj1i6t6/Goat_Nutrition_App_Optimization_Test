@@ -1,32 +1,39 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 
-export default defineConfig(({ command }) => {
-  return {
-    plugins: [vue()],
-    resolve: {
-      alias: {
-        '@': resolve(__dirname, './src'),
-      },
+export default defineConfig({
+  plugins: [vue()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
     },
-    test: {
-      globals: true,
-      environment: 'happy-dom',
-      setupFiles: ['./src/tests/setup.js'],
-      coverage: {
-        reporter: ['text', 'json', 'html'],
-        exclude: [
-          'node_modules/',
-          'src/main.js',
-          'src/tests/',
-          '**/*.spec.js',
-          '**/*.test.js',
-        ],
-      },
+  },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    setupFiles: ['./src/test/setup-unified.js'],
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true
+      }
     },
-    server: {
-      port: 5173,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      exclude: [
+        'node_modules/',
+        'src/main.js',
+        'src/tests/',
+        '**/*.spec.js',
+        '**/*.test.js',
+      ],
     },
-  }
+    fileParallelism: false,
+    isolate: true,
+  },
+  server: {
+    port: 5173,
+  },
 })

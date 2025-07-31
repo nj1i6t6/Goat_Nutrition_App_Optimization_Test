@@ -34,19 +34,22 @@ def create_app():
         # 生產環境：僅允許指定的來源
         CORS(app, resources={r"/api/*": {"origins": cors_origins}}, supports_credentials=True)
 
-    db_user = os.environ.get('DB_USERNAME')
-    db_pass = os.environ.get('DB_PASSWORD')
-    db_host = os.environ.get('DB_HOST')
-    db_port = os.environ.get('DB_PORT')
-    db_name = os.environ.get('DB_NAME')
+    # PostgreSQL 配置 - 使用正確的環境變數名稱
+    db_user = os.environ.get('POSTGRES_USER')
+    db_pass = os.environ.get('POSTGRES_PASSWORD')
+    db_host = os.environ.get('POSTGRES_HOST', 'db')  # Docker Compose 服務名稱
+    db_port = os.environ.get('POSTGRES_PORT', '5432')
+    db_name = os.environ.get('POSTGRES_DB')
     
     # 檢查是否有資料庫配置，如果沒有則使用默認的 SQLite
-    if all([db_user, db_pass, db_host, db_port, db_name]):
+    if all([db_user, db_pass, db_name]):
         db_uri = f'postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}'
         app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
+        print(f"使用 PostgreSQL 資料庫: {db_host}:{db_port}/{db_name}")
     elif not app.config.get('SQLALCHEMY_DATABASE_URI'):
         # 如果沒有設定任何資料庫 URI，使用默認的 SQLite
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+        print("使用 SQLite 資料庫: app.db")
     
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

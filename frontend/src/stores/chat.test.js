@@ -8,6 +8,11 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useChatStore } from './chat'
 import api from '../api'
 
+// Mock errorHandler 避免循環依賴
+vi.mock('../utils/errorHandler', () => ({
+  handleApiError: vi.fn()
+}))
+
 // Mock API
 vi.mock('../api', () => ({
   default: {
@@ -176,11 +181,13 @@ describe('Chat Store', () => {
       await chatStore.sendMessage('test-key', '測試訊息', '')
     })
 
-    it('應該清空聊天記錄並重置狀態', () => {
+    it('應該清空聊天記錄並重置狀態', async () => {
       const originalSessionId = chatStore.sessionId
       
       expect(chatStore.messages).toHaveLength(3) // 初始 + 用戶 + AI
 
+      // 等待一毫秒確保時間戳不同
+      await new Promise(resolve => setTimeout(resolve, 1))
       chatStore.clearChat()
 
       expect(chatStore.messages).toHaveLength(1)
@@ -194,8 +201,11 @@ describe('Chat Store', () => {
       expect(chatStore.error).toBe('')
     })
 
-    it('應該生成新的 session ID', () => {
+    it('應該生成新的 session ID', async () => {
       const originalSessionId = chatStore.sessionId
+      
+      // 等待一毫秒確保時間戳不同
+      await new Promise(resolve => setTimeout(resolve, 1))
       
       chatStore.clearChat()
       

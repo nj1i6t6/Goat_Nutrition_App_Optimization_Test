@@ -10,6 +10,11 @@ const localStorageMock = {
 }
 global.localStorage = localStorageMock
 
+// Mock errorHandler 避免循環依賴
+vi.mock('../utils/errorHandler', () => ({
+  handleApiError: vi.fn()
+}))
+
 // Mock API
 vi.mock('../api', () => ({
   default: {

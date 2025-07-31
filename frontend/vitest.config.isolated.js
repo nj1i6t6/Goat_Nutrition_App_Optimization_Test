@@ -21,8 +21,10 @@ export default defineConfig({
     },
     // 隔離測試以避免循環依賴
     isolate: true,
-    deps: {
-      external: ['vue-router', 'pinia']
+    server: {
+      deps: {
+        external: ['vue-router', 'pinia']
+      }
     },
     coverage: {
       provider: 'v8',

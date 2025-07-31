@@ -7,6 +7,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useConsultationStore } from '@/stores/consultation'
 
+// Mock errorHandler 避免循環依賴
+vi.mock('@/utils/errorHandler', () => ({
+  handleApiError: vi.fn()
+}))
+
 // 模擬 API 模組
 vi.mock('@/api', () => ({
   default: {

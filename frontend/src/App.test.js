@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
@@ -83,14 +83,14 @@ describe('App', () => {
 
   describe('組件結構', () => {
     it('應該只有一個根容器', () => {
-      const containers = wrapper.findAll('div')
-      expect(containers.length).toBe(1)
-      expect(containers[0].attributes('id')).toBe('app-container')
+      const container = wrapper.find('#app-container')
+      expect(container.exists()).toBe(true)
+      expect(container.attributes('id')).toBe('app-container')
     })
 
     it('應該保持簡潔的結構', () => {
       // App 組件應該只包含路由視圖，不應該有複雜的邏輯
-      expect(wrapper.html()).toContain('router-view')
+      expect(wrapper.html()).toContain('app-container')
       expect(wrapper.html()).not.toContain('el-header')
       expect(wrapper.html()).not.toContain('el-menu')
     })

@@ -23,9 +23,9 @@ if __name__ == '__main__':
         pass
     
     # 從環境變數讀取配置
-    host = os.environ.get('FLASK_RUN_HOST', '127.0.0.1') 
+    host = os.environ.get('FLASK_RUN_HOST', '0.0.0.0')  # 改為 0.0.0.0 以支援外網訪問
     port = int(os.environ.get('FLASK_RUN_PORT', 5001))
-    debug = os.environ.get('FLASK_DEBUG', 'True').lower() in ['true', '1', 't']
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() in ['true', '1', 't']  # 生產環境預設關閉 debug
 
     print("===================================================")
     print(f" * Backend server starting on http://{host}:{port}")

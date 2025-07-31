@@ -9,7 +9,7 @@ echo "=== 領頭羊博士 Docker 啟動腳本 ==="
 
 # 等待資料庫可用
 echo "等待資料庫連線..."
-while ! pg_isready -h ${DB_HOST:-db} -p ${DB_PORT:-5432} -U ${DB_USERNAME:-postgres}; do
+while ! pg_isready -h ${POSTGRES_HOST:-db} -p ${POSTGRES_PORT:-5432} -U ${POSTGRES_USER:-postgres}; do
     echo "資料庫尚未就緒，等待 2 秒..."
     sleep 2
 done

@@ -12,7 +12,12 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # Set the correct path for alembic.ini
+    import os
+    alembic_ini_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'alembic.ini')
+    config.config_file_name = alembic_ini_path
+    if os.path.exists(alembic_ini_path):
+        fileConfig(alembic_ini_path)
 logger = logging.getLogger('alembic.env')
 
 
