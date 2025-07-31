@@ -266,7 +266,7 @@ cd frontend && npm run test
 - **HTTP 客戶端**：Axios 1.11.0
 - **圖表視覺化**：Chart.js 4.5.0 + Vue-ChartJS 5.3.2
 - **建置工具**：Vite 7.0.4
-- **測試框架**：Vitest 1.6.0 + @vue/test-utils 2.4.0
+- **測試框架**：Vitest 3.2.4 + @vue/test-utils 2.4.0
 - **測試環境**：Happy-DOM 12.10.3
 - **圖表視覺化**：Chart.js 4.5.0 + Vue-ChartJS 5.3.2
 
