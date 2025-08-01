@@ -189,6 +189,16 @@ export default {
     return withErrorHandling(() => apiClient.delete(`/api/dashboard/event_descriptions/${descId}`), errorHandler); 
   },
 
+  // 羊隻生長預測 API
+  getSheepPrediction(earTag, targetDays, apiKey, errorHandler) {
+    return withErrorHandling(() => apiClient.get(`/api/prediction/goats/${earTag}/prediction?target_days=${targetDays}`, {
+      headers: { 'X-Api-Key': apiKey }
+    }), errorHandler);
+  },
+  getPredictionChartData(earTag, targetDays, errorHandler) {
+    return withErrorHandling(() => apiClient.get(`/api/prediction/goats/${earTag}/prediction/chart-data?target_days=${targetDays}`), errorHandler);
+  },
+
   // 原始錯誤處理包裝函數，供外部使用
   withErrorHandling
 };

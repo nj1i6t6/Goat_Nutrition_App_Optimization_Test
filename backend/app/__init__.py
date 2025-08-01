@@ -65,12 +65,13 @@ def create_app():
 
     with app.app_context():
         # --- 註冊 API 藍圖 ---
-        from .api import auth as auth_bp, sheep as sheep_bp, data_management as data_management_bp, agent as agent_bp, dashboard as dashboard_bp
+        from .api import auth as auth_bp, sheep as sheep_bp, data_management as data_management_bp, agent as agent_bp, dashboard as dashboard_bp, prediction as prediction_bp
         app.register_blueprint(auth_bp.bp, url_prefix='/api/auth')
         app.register_blueprint(sheep_bp.bp, url_prefix='/api/sheep')
         app.register_blueprint(data_management_bp.bp, url_prefix='/api/data')
         app.register_blueprint(agent_bp.bp, url_prefix='/api/agent')
         app.register_blueprint(dashboard_bp.bp, url_prefix='/api/dashboard')
+        app.register_blueprint(prediction_bp.bp, url_prefix='/api/prediction')
 
         # --- 【修改二：添加捕獲所有路由的規則】 ---
         # 這個規則確保，任何不匹配 API 的請求，都會返回前端的 index.html

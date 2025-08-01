@@ -19,6 +19,7 @@
         <el-menu-item index="/consultation">飼養建議諮詢</el-menu-item>
         <el-menu-item index="/chat">AI 問答助理</el-menu-item>
         <el-menu-item index="/flock">羊群總覽</el-menu-item>
+        <el-menu-item index="/prediction">生長預測</el-menu-item>
         <el-menu-item index="/data-management">數據管理</el-menu-item>
         <el-menu-item index="/settings">系統設定</el-menu-item>
       </el-menu>
@@ -65,6 +66,10 @@
           <el-icon><Tickets /></el-icon>
           <span>羊群總覽</span>
         </el-menu-item>
+        <el-menu-item index="/prediction">
+          <el-icon><TrendCharts /></el-icon>
+          <span>生長預測</span>
+        </el-menu-item>
         <el-menu-item index="/data-management">
           <el-icon><Upload /></el-icon>
           <span>數據管理</span>
@@ -88,7 +93,7 @@ import { ref } from 'vue';
 import { useAuthStore } from '../stores/auth';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import {
-  Menu, DataAnalysis, HelpFilled, Service, Tickets, Upload, Setting,
+  Menu, DataAnalysis, HelpFilled, Service, Tickets, Upload, Setting, TrendCharts
 } from '@element-plus/icons-vue';
 
 const authStore = useAuthStore();
@@ -207,8 +212,9 @@ const handleLogout = () => {
   .hamburger-menu {
     display: block;
   }
-  .user-info {
-    /* 在小螢幕也可以選擇隱藏部分用戶資訊 */
-  }
+  /* .user-info {
+    在小螢幕也可以選擇隱藏部分用戶資訊
+  } 
+  */
 }
 </style>

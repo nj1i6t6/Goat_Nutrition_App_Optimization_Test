@@ -184,6 +184,7 @@ def mock_gemini_api(monkeypatch):
     # 嘗試多個可能的路徑
     monkeypatch.setattr('app.utils.call_gemini_api', mock_call_gemini_api)
     monkeypatch.setattr('app.api.agent.call_gemini_api', mock_call_gemini_api)
+    monkeypatch.setattr('app.api.prediction.call_gemini_api', mock_call_gemini_api)
     return mock_call_gemini_api
 
 
@@ -194,7 +195,74 @@ def mock_gemini_api_error(monkeypatch):
         return {"error": "API 調用失敗"}
     
     monkeypatch.setattr('app.utils.call_gemini_api', mock_call_gemini_api_error)
+    monkeypatch.setattr('app.api.prediction.call_gemini_api', mock_call_gemini_api_error)
     return mock_call_gemini_api_error
+
+
+@pytest.fixture
+def sheep_with_weight_data(authenticated_client, db_session):
+    """創建帶有足夠體重數據的羊隻 fixture"""
+    from app.models import Sheep, SheepHistoricalData, User
+    from datetime import datetime, timedelta
+    
+    user = User.query.filter_by(username='testuser').first()
+    
+    # 創建羊隻
+    sheep = Sheep(
+        user_id=user.id,
+        EarNum='PRED001',
+        Breed='努比亞',
+        Sex='母',
+        BirthDate='2023-01-01'
+    )
+    db_session.add(sheep)
+    db_session.commit()
+    
+    # 創建足夠的體重歷史記錄
+    base_date = datetime(2024, 1, 1)
+    for i in range(6):  # 6 筆記錄，滿足最少3筆的要求
+        record = SheepHistoricalData(
+            sheep_id=sheep.id,
+            user_id=user.id,
+            record_date=(base_date + timedelta(days=i*15)).strftime('%Y-%m-%d'),
+            record_type='體重',
+            value=10.0 + i * 2.0  # 模擬增長趨勢
+        )
+        db_session.add(record)
+    
+    db_session.commit()
+    return sheep
+
+
+@pytest.fixture
+def sheep_insufficient_data(authenticated_client, db_session):
+    """創建數據不足的羊隻 fixture"""
+    from app.models import Sheep, SheepHistoricalData, User
+    
+    user = User.query.filter_by(username='testuser').first()
+    
+    # 創建羊隻
+    sheep = Sheep(
+        user_id=user.id,
+        EarNum='INSUFFICIENT001',
+        Breed='波爾',
+        Sex='公',
+        BirthDate='2023-06-01'
+    )
+    db_session.add(sheep)
+    db_session.commit()
+    
+    # 只創建1筆記錄，不足以進行預測
+    record = SheepHistoricalData(
+        sheep_id=sheep.id,
+        user_id=user.id,
+        record_date='2024-01-01',
+        record_type='體重',
+        value=15.0
+    )
+    db_session.add(record)
+    db_session.commit()
+    return sheep
 
 
 @pytest.fixture

@@ -17,10 +17,17 @@ def make_shell_context():
     }
 
 if __name__ == '__main__':
+    # 檢測是否在 Codespaces 環境中，如果是則自動創建資料庫表格
+    is_codespaces = os.environ.get('CODESPACES') or os.environ.get('GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN')
+    
     # 在應用程式上下文中執行操作，確保擴展等能正確初始化
     with app.app_context():
+        # 如果在 Codespaces 環境且使用 SQLite，自動創建表格
+        if is_codespaces and 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
+            print("檢測到 Codespaces 環境，使用 SQLite 並自動創建表格...")
+            db.create_all()
+            print("資料庫表格創建完成！")
         # 這裡可以放置需要在啟動時執行的命令，例如 db.create_all() (但在使用 migrate 後不建議)
-        pass
     
     # 從環境變數讀取配置
     host = os.environ.get('FLASK_RUN_HOST', '0.0.0.0')  # 改為 0.0.0.0 以支援外網訪問

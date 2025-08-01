@@ -44,6 +44,11 @@ const routes = [
         component: () => import('../views/DataManagementView.vue')
       },
       {
+        path: 'prediction',
+        name: 'Prediction',
+        component: () => import('../views/PredictionView.vue')
+      },
+      {
         path: 'settings',
         name: 'Settings',
         component: () => import('../views/SettingsView.vue')
