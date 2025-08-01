@@ -31,13 +31,18 @@ app.config.update({
 with app.app_context():
     db.create_all()
     
-    # 創建測試用戶
-    user = User(
-        username='testuser',
-        password_hash=generate_password_hash('testpass')
-    )
-    db.session.add(user)
-    db.session.commit()
+    # 檢查測試用戶是否已存在，不存在才創建
+    existing_user = User.query.filter_by(username='testuser').first()
+    if not existing_user:
+        user = User(
+            username='testuser',
+            password_hash=generate_password_hash('testpass')
+        )
+        db.session.add(user)
+        db.session.commit()
+        print("創建測試用戶: testuser")
+    else:
+        print("測試用戶已存在: testuser")
     
     # 創建測試客戶端
     client = app.test_client()

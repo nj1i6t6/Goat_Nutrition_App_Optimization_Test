@@ -1,5 +1,6 @@
 import requests
 import json
+import base64
 from .models import Sheep, SheepEvent, SheepHistoricalData
 from flask import current_app
 
@@ -7,6 +8,10 @@ def call_gemini_api(prompt_text, api_key, generation_config_override=None, safet
     """
     通用 Gemini API 調用函數。
     """
+    # 檢查 API 金鑰是否有效
+    if not api_key or api_key == 'your-gemini-api-key-here':
+        return {"error": "請設置有效的 Google Gemini API 金鑰。請在 .env 文件中設置 GOOGLE_API_KEY。"}
+    
     GEMINI_MODEL_NAME = "gemini-2.5-pro"
     MAX_OUTPUT_TOKENS_GEMINI = 16384 
     GEMINI_API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL_NAME}:generateContent?key={api_key}"
@@ -103,3 +108,10 @@ def get_sheep_info_for_context(ear_num, user_id):
     sheep_dict['history_records'] = [rec.to_dict() for rec in history_records]
 
     return sheep_dict
+
+
+def encode_image_to_base64(image_data):
+    """
+    將圖片數據編碼為 base64 字符串
+    """
+    return base64.b64encode(image_data).decode('utf-8')

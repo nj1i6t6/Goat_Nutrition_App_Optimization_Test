@@ -6,7 +6,11 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
+# 使用絕對路徑載入 .env 文件
+env_path = '/workspaces/Goat_Nutrition_App_Optimization_Test/.env'
+load_dotenv(env_path)
+print(f"Loading .env from: {env_path}")
+print(f"SECRET_KEY loaded: {'Yes' if os.environ.get('SECRET_KEY') else 'No'}")
 
 db = SQLAlchemy()
 migrate = Migrate()

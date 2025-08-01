@@ -133,9 +133,27 @@ export default {
     const payload = { ...data, api_key: apiKey };
     return withErrorHandling(() => apiClient.post('/api/agent/recommendation', payload), errorHandler);
   },
-  chatWithAgent(apiKey, message, sessionId, earNumContext, errorHandler) {
-    const payload = { api_key: apiKey, message, session_id: sessionId, ear_num_context: earNumContext };
-    return withErrorHandling(() => apiClient.post('/api/agent/chat', payload), errorHandler);
+  chatWithAgent(apiKey, message, sessionId, earNumContext, imageData = null, errorHandler) {
+    // 如果有圖片，使用 FormData
+    if (imageData && imageData.file) {
+      const formData = new FormData();
+      formData.append('api_key', apiKey);
+      formData.append('message', message);
+      formData.append('session_id', sessionId);
+      if (earNumContext) formData.append('ear_num_context', earNumContext);
+      formData.append('image', imageData.file);
+      
+      return withErrorHandling(() => 
+        apiClient.post('/api/agent/chat', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }), errorHandler);
+    } else {
+      // 沒有圖片時使用原來的 JSON 方式
+      const payload = { api_key: apiKey, message, session_id: sessionId, ear_num_context: earNumContext };
+      return withErrorHandling(() => apiClient.post('/api/agent/chat', payload), errorHandler);
+    }
   },
 
   // 儀表板 API

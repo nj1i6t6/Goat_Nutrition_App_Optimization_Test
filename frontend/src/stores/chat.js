@@ -19,9 +19,24 @@ export const useChatStore = defineStore('chat', () => {
   // --- Actions ---
 
   // 發送訊息的 action
-  async function sendMessage(apiKey, userMessage, earNumContext) {
+  async function sendMessage(apiKey, userMessage, earNumContext, imageData = null) {
+    // 準備用戶訊息物件
+    const userMessageObj = { 
+      role: 'user', 
+      content: userMessage || (imageData ? '請幫我分析這張山羊照片' : '')
+    };
+    
+    // 如果有圖片，添加圖片資訊
+    if (imageData) {
+      userMessageObj.image = {
+        url: imageData.url,
+        name: imageData.name,
+        type: imageData.type
+      };
+    }
+    
     // 將用戶的訊息添加到歷史記錄中
-    messages.push({ role: 'user', content: userMessage });
+    messages.push(userMessageObj);
     
     isLoading.value = true;
     error.value = '';
@@ -29,9 +44,10 @@ export const useChatStore = defineStore('chat', () => {
     try {
       const response = await api.chatWithAgent(
         apiKey,
-        userMessage,
+        userMessage || '請幫我分析這張山羊照片',
         sessionId.value,
-        earNumContext
+        earNumContext,
+        imageData
       );
       // 將 AI 的回覆添加到歷史記錄中
       messages.push({ role: 'model', content: response.reply_html });

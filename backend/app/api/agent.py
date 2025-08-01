@@ -1,11 +1,12 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_login import login_required, current_user
-from app.utils import call_gemini_api, get_sheep_info_for_context
+from app.utils import call_gemini_api, get_sheep_info_for_context, encode_image_to_base64
 from app.models import db, ChatHistory
 from app.schemas import AgentRecommendationModel, AgentChatModel, create_error_response
 from pydantic import ValidationError
 from datetime import datetime
 import markdown
+import base64
 
 bp = Blueprint('agent', __name__)
 
@@ -124,19 +125,52 @@ def get_recommendation():
 @bp.route('/chat', methods=['POST'])
 @login_required
 def chat_with_agent():
-    """與 AI 聊天"""
+    """與 AI 聊天，支援文字和圖片"""
     try:
-        # 使用 Pydantic 驗證聊天資料
-        chat_data = AgentChatModel(**request.get_json())
+        # 檢查是否為包含檔案的請求
+        if 'image' in request.files:
+            # 處理包含圖片的請求
+            api_key = request.form.get('api_key')
+            user_message = request.form.get('message', '')
+            session_id = request.form.get('session_id')
+            ear_num_context = request.form.get('ear_num_context')
+            image_file = request.files['image']
+            
+            if not api_key or not session_id:
+                return jsonify(error="缺少必要參數"), 400
+            
+            # 驗證圖片
+            if not image_file or not image_file.filename:
+                return jsonify(error="未選擇圖片檔案"), 400
+            
+            # 檢查檔案類型
+            allowed_types = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+            if image_file.content_type not in allowed_types:
+                return jsonify(error="不支援的圖片格式，請使用 JPEG、PNG、GIF 或 WebP"), 400
+            
+            # 檢查檔案大小 (10MB)
+            image_data = image_file.read()
+            if len(image_data) > 10 * 1024 * 1024:
+                return jsonify(error="圖片檔案不能超過 10MB"), 400
+            
+            # 將圖片編碼為 base64
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
+            
+        else:
+            # 處理純文字請求
+            chat_data = AgentChatModel(**request.get_json())
+            api_key = chat_data.api_key
+            user_message = chat_data.message
+            session_id = chat_data.session_id
+            ear_num_context = chat_data.ear_num_context
+            image_base64 = None
+            
     except ValidationError as e:
         return jsonify(create_error_response("聊天資料驗證失敗", e.errors())), 400
+    except Exception as e:
+        return jsonify(error=f"處理請求時發生錯誤: {str(e)}"), 400
 
-    # 從驗證後的資料中提取值
-    api_key = chat_data.api_key
-    user_message = chat_data.message
-    session_id = chat_data.session_id
-    ear_num_context = chat_data.ear_num_context
-
+    # 獲取聊天歷史
     history = ChatHistory.query.filter_by(
         user_id=current_user.id, 
         session_id=session_id
@@ -144,7 +178,7 @@ def chat_with_agent():
     
     # 建立對話歷史
     chat_messages_for_api = [
-        {"role": "user", "parts": [{"text": "你是一位名叫『領頭羊博士』的AI羊隻飼養代理人，你非常了解台灣的氣候和常見飼養方式。請友善且專業地回答使用者的問題。"}]},
+        {"role": "user", "parts": [{"text": "你是一位名叫『領頭羊博士』的AI羊隻飼養代理人，你非常了解台灣的氣候和常見飼養方式。請友善且專業地回答使用者的問題。當用戶上傳山羊照片時，請仔細分析照片中山羊的外觀、健康狀況、環境等，並給出專業的飼養建議。"}]},
         {"role": "model", "parts": [{"text": "是的，領頭羊博士在此為您服務。請問有什麼問題嗎？"}]}
     ]
     for entry in history:
@@ -169,9 +203,26 @@ def chat_with_agent():
             
             sheep_context_text = "\n".join(context_parts)
 
+    # 準備用戶訊息
     current_user_message_with_context = user_message + sheep_context_text
-    chat_messages_for_api.append({"role": "user", "parts": [{"text": current_user_message_with_context}]})
+    
+    # 如果有圖片，加入圖片部分
+    user_message_parts = [{"text": current_user_message_with_context}]
+    if image_base64:
+        mime_type = "image/jpeg"  # 默認值
+        if 'image' in request.files:
+            mime_type = image_file.content_type
+        
+        user_message_parts.append({
+            "inline_data": {
+                "mime_type": mime_type,
+                "data": image_base64
+            }
+        })
+    
+    chat_messages_for_api.append({"role": "user", "parts": user_message_parts})
 
+    # 呼叫 Gemini API
     gemini_response = call_gemini_api(chat_messages_for_api, api_key, generation_config_override={"temperature": 0.7})
 
     if "error" in gemini_response:
@@ -179,8 +230,14 @@ def chat_with_agent():
 
     model_reply_text = gemini_response.get("text", "抱歉，我暫時無法回答。")
     
+    # 儲存聊天記錄
     try:
-        user_entry = ChatHistory(user_id=current_user.id, session_id=session_id, role='user', content=user_message, ear_num_context=ear_num_context)
+        # 為包含圖片的訊息添加標記
+        user_content = user_message
+        if image_base64:
+            user_content += " [包含圖片]"
+            
+        user_entry = ChatHistory(user_id=current_user.id, session_id=session_id, role='user', content=user_content, ear_num_context=ear_num_context)
         model_entry = ChatHistory(user_id=current_user.id, session_id=session_id, role='model', content=model_reply_text, ear_num_context=ear_num_context)
         db.session.add(user_entry)
         db.session.add(model_entry)
